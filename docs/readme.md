@@ -2,8 +2,10 @@
  (comming soon)
 
 #Useage
+
 This software connects with an altimeter and usb serial gps puck
 to relay the information back to the user, as well as log and provide download utility
+
 ### The Interface
 
 ![](images/screen0.png) ![](images/screen0.1.jpg)
@@ -21,35 +23,42 @@ to relay the information back to the user, as well as log and provide download u
 #### Alternative Screens
 
 ##### When Recording (click "Start Recording" Button)
+
 ![](images/state_recording.jpg)
 1. both color and text indicate recording status
 2. main button will stop current recording
 3. download button becomes a PAUSE button allowing to pause and resume within the same csv
 
 ##### When Recording is paused (Click "PAUSE" Button, while recording)
+
 ![](images/state_paused.jpg)
 1. both color and text indicate paused status
 2. main button will resume current csv log
 3. PAUSE button is disabled, while state is paused.
 
 ##### When there is an issue with the current reading
+
 ![](images/bad_values.jpg)
 1. main label displays "nan"
 2. causes a break in the current chart trace
 3. status light indicates an error reading device
 
 ##### When showing 2 traces (sealevel altitude toggled on)
+
 ![](images/double_traces.jpg)
 
 ### DEVICE STATUS INDICATORS
+
 Both GPS and the Altimeter will report their
 current status by signaling one of 3 colors
 ![](images/status_indicators.jpg)
 
 ### Downloads
+
 When downloading logfiles, you will also find an additional output of raw readings from the gps
 as well as potentially an error log from the altimeter
 ![](images/sheet.jpg)
+
 1. the date(from gps) - DDYYMM format
 2. the time(from gps UTC Timezone) - HHMMSS includes fractional seconds,
 3. the altitude from the altimeter (lidar)
