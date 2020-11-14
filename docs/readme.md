@@ -1,7 +1,7 @@
 # Installation
  (comming soon)
 
-#Useage
+# Useage
 
 This software connects with an altimeter and usb serial gps puck
 to relay the information back to the user, as well as log and provide download utility
