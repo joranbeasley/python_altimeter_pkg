@@ -34,7 +34,7 @@ echo "copy systemd services"
 sudo cp -rf SYSTEM/etc/systemd/* /etc/systemd/
 
 echo "copy .xinitrc and .xserverrc"
-sudo cp -rf SYSTEM/home/.xinitrc SYSTEM/home/.xserverrc SYSTEM/home/start-altimeter-gui.sh SYSTEM/home/start-serial-worker.sh  /home/pi
+sudo cp -rf SYSTEM/home/.xinitrc SYSTEM/home/.xserverrc SYSTEM/home/start-altimeter-gui.sh SYSTEM/home/start-serial-worker.sh SYSTEM/home/.tmux.conf  /home/pi
 echo "fix bashrc"
 cat SYSTEM/home/pi/.bashrc >> /home/pi/.bashrc
 
