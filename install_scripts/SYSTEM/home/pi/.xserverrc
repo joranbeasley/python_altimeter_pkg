@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "START XSERVER!"
+exec sudo /usr/lib/xorg/Xorg :0 -seat seat0 -nolisten tcp vt7 -novtswitch -s 0 dpms

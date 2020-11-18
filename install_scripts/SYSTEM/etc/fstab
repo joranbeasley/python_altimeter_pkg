@@ -1,0 +1,8 @@
+# added for python_altimeter_pkg
+/dev/sda1       /mnt/USB        vfat    defaults,umask=000  0      1
+/dev/sdb1       /mnt/USB        vfat    defaults,umask=000  0      1
+/dev/sdc1       /mnt/USB        vfat    defaults,umask=000  0      1
+/dev/sdd1       /mnt/USB        vfat    defaults,umask=000  0      1
+/dev/sde1       /mnt/USB        vfat    defaults,umask=000  0      1
+/dev/sdf1       /mnt/USB        vfat    defaults,umask=000  0      1
+#end section for python_altimeter_pkg
