@@ -6,9 +6,8 @@ else
 fi
 time sudo apt-get -y install --no-install-recommends xserver-xorg
 time sudo apt-get -y install --no-install-recommends xinit
-time sudo apt-get -y install python-setuptools python-pip lightdb python-tk redis-server
+time sudo apt-get -y install python-setuptools python-pip python-tk redis-server
 time sudo apt-get -y install --no-install-recommends x11-xserver-utils
-sudo /usr/lib/lightdm/lightdm-set-defaults --autologin "pi"
 
 time sudo apt-get -y install python-matplotlib
 time sudo pip install redis
@@ -29,6 +28,7 @@ sudo sed -i "s/#xserver-command=/usr/lib/xorg/Xorg :0 -seat seat0 -auth /var/run
 echo -e "\n\nINSTALLING PACKAGE FILES"
 if grep -q "# added for python_altimeter_pkg" /etc/fstab; then
    echo "already added first delete it"
+   sudo sed -i -e "/# added for python_altimeter_pkg/,/#end section for python_altimeter_pkg/d" /etc/fstab
 fi
 echo "setup fstab"
 cat SYSTEM/etc/fstab |sudo tee -a /etc/fstab
@@ -48,7 +48,8 @@ sudo chmod 777 /home/pi/start-serial-worker.sh
 sudo chmod 777 /home/pi/start-altimeter-gui.sh
 echo "fix bashrc"
 if grep -q "# added for python_altimeter_pkg" /etc/fstab; then
-   echo "already added first delete it"
+   echo "already added first delete it from bash rc"
+   sed -i -e "/# added for python_altimeter_pkg/,/#end section for python_altimeter_pkg/d" /etc/fstab
 fi
 
 cat SYSTEM/home/pi/.bashrc >> /home/pi/.bashrc
