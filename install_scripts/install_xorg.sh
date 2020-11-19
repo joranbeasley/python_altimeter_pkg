@@ -23,8 +23,7 @@ time sudo apt-get -y install --no-install-recommends x11-xserver-utils
 info SUCCESS "installed x11-server-utils"
 time sudo apt-get -y install python-matplotlib python-tk feh
 info SUCCESS "installed matplotlib, and tk"
-time sudo apt-get -t install lightdm
-info SUCCESS "installed lightdm" #loginmanager
+
 time sudo pip install redis
 info SUCCESS "INSTALLed redis"
 sudo pip install pyserial
@@ -38,5 +37,6 @@ info SUCCESS "SYSTEM CONGIFURED installing PITFT ... then restart"
 #install touch drivers this will cause a reboot
 wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/adafruit-pitft.sh
 chmod +x adafruit-pitft.sh
-
+time sudo apt-get -t install lightdm
+info SUCCESS "installed lightdm" #loginmanager
 sudo ./adafruit-pitft.sh
