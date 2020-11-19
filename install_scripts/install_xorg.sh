@@ -12,6 +12,7 @@ function info() {
     BG="40m"
     echo -e "[\033[${FG}\033[${BG}${system}\033[0m] $*"
 }
+
 time sudo apt-get -y install --no-install-recommends xserver-xorg
 info SUCCESS "INSTALLED xserver-xorg"
 time sudo apt-get -y install --no-install-recommends xinit
@@ -29,8 +30,7 @@ info SUCCESS "installed pyserial"
 #wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/adafruit-pitft.sh
 
 
-sudo ./configure_sys.sh
-
+time sudo /bin/bash configure_sys.sh
 info SUCCESS "SYSTEM CONGIFURED installing PITFT ... then restart"
 #install touch drivers this will cause a reboot
 sudo /bin/bash adafruit-pitft-setup.sh -c1 -r1 -m2

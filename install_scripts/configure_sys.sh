@@ -16,6 +16,7 @@ if grep -q "# added for python_altimeter_pkg" /etc/fstab; then
 fi
 echo "setup fstab"
 cat SYSTEM/etc/fstab |sudo tee -a /etc/fstab
+cat /etc/fstab
 echo "copy udev rules"
 sudo cp -rf SYSTEM/etc/udev/* /etc/udev/
 echo "copy systemd services"
