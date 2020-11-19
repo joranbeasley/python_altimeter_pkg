@@ -30,26 +30,28 @@ sudo cp -rf SYSTEM/etc/udev/* /etc/udev/
 info CONFIG "copy systemd services"
 sudo cp -rf SYSTEM/etc/systemd/* /etc/systemd/
 sudo systemctl enable ser-mon
+sudo systemctl enable fbsplash0
+sudo systemctl enable fbsplash1
 
-info CONFIG "copy .xinitrc and .xserverrc"
-sudo cp -rf SYSTEM/home/pi/.xinitrc SYSTEM/home/pi/.xserverrc /home/pi/
+info CONFIG "copy .xsession"
+sudo cp -rf SYSTEM/home/pi/.xinitrc SYSTEM/home/pi/.xsession /home/pi/
 info CONFIG "copy start-altimeter-gui and start-serial-monitor executables"
-sudo cp -rf SYSTEM/home/pi/start-altimeter-gui.sh SYSTEM/home/pi/start-serial-monitor.sh /home/pi/
-sudo chmod +x /home/pi/start-altimeter-gui.sh
-sudo chmod +x /home/pi/start-serial-monitor.sh
-sudo chmod 777 /home/pi/start-serial-monitor.sh
-sudo chmod 777 /home/pi/start-altimeter-gui.sh
+sudo cp -rf SYSTEM/home/pi/start-altimeter-gui SYSTEM/home/pi/start-serial-monitor /home/pi/
+sudo chmod +x /home/pi/start-altimeter-gui
+sudo chmod +x /home/pi/start-serial-monitor
+sudo chmod 777 /home/pi/start-serial-monitor
+sudo chmod 777 /home/pi/start-altimeter-gui
 
 sudo cp -rf SYSTEM/home/pi/.tmux.conf  /home/pi/
 
 
-info CONFIG "fix bashrc"
-if grep -q "# added for python_altimeter_pkg" /home/pi/.bashrc; then
-   info CONFIG "already added first delete it from bash rc"
-   sed -i -e "/# added for python_altimeter_pkg/,/#end section for python_altimeter_pkg/d" /home/pi/.bashrc
-fi
-
-cat SYSTEM/home/pi/.bashrc >> /home/pi/.bashrc
+#info CONFIG "fix bashrc"
+#if grep -q "# added for python_altimeter_pkg" /home/pi/.bashrc; then
+#   info CONFIG "already added first delete it from bash rc"
+#   sed -i -e "/# added for python_altimeter_pkg/,/#end section for python_altimeter_pkg/d" /home/pi/.bashrc
+#fi
+#
+#cat SYSTEM/home/pi/.bashrc >> /home/pi/.bashrc
 
 
 # /usr/lib/xorg/Xorg :0 -seat seat0 -auth /var/run/lightdm/root/:0 -nolisten tcp vt7 -novtswitch -s 0 dpms
