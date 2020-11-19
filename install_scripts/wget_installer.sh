@@ -1,4 +1,9 @@
-# sudo apt-get update
+
+echo -n "apt-get update? [y/N] "
+read
+if [[ ! "$REPLY" =~ ^(yes|y|Y)$ ]]; then
+  sudo apt-get update
+fi
 sudo apt-get -y install git
 cd /home/pi
 git clone https://github.com/joranbeasley/python_altimeter_pkg.git
