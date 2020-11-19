@@ -3,6 +3,7 @@ Description=SerialAltimeterMonitor
 
 [Service]
 ExecStart=/home/pi/start-serial-monitor.sh
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
