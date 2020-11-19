@@ -1,5 +1,9 @@
 # install x-server
-time sudo apt-get -y install git
+if git -v; then
+  echo "GIT ALREADY INSTALLED!"
+else
+  time sudo apt-get -y install git
+fi
 time sudo apt-get -y install --no-install-recommends xserver-xorg
 time sudo apt-get -y install --no-install-recommends xinit
 time sudo apt-get -y install python-setuptools python-pip lightdb python-tk redis-server
