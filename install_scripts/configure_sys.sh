@@ -26,9 +26,9 @@ ls SYSTEM/home/pi -la
 sudo cp -rf SYSTEM/home/pi/.xinitrc SYSTEM/home/pi/.xserverrc /home/pi/
 sudo cp -rf SYSTEM/home/pi/start-altimeter-gui.sh SYSTEM/home/pi/start-serial-monitor.sh /home/pi/
 sudo chmod +x /home/pi/start-altimeter-gui.sh
-sudo chmod +x /home/pi/start-serial-worker.sh
+sudo chmod +x /home/pi/start-serial-monitor.sh
 sudo cp -rf SYSTEM/home/pi/.tmux.conf  /home/pi/
-sudo chmod 777 /home/pi/start-serial-worker.sh
+sudo chmod 777 /home/pi/start-serial-monitor.sh
 sudo chmod 777 /home/pi/start-altimeter-gui.sh
 echo "fix bashrc"
 if grep -q "# added for python_altimeter_pkg" /etc/fstab; then
