@@ -1,6 +1,6 @@
 # Installation
- (comming soon)
-
+ (comming soon, do not use the below command yet)
+  `curl https://github.com/joranbeasley/python_altimeter_pkg.git | sudo sh`
 # Useage
 
 This software connects with an altimeter and usb serial gps puck
