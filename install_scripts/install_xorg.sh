@@ -33,4 +33,4 @@ sudo ./configure_sys.sh
 
 info SUCCESS "SYSTEM CONGIFURED installing PITFT ... then restart"
 #install touch drivers this will cause a reboot
-sudo /bin/bash adafruit-pitft-setup.sh -c1 -r1 -m2
+sudo /bin/bash adafruit-pitft-setup.sh -c1 -r1 -m1
