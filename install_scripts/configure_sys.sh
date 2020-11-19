@@ -32,6 +32,7 @@ sudo cp -rf SYSTEM/etc/systemd/* /etc/systemd/
 sudo systemctl enable ser-mon
 sudo systemctl enable fbsplash0
 sudo systemctl enable fbsplash1
+sudo systemctl daemon-reload
 
 info CONFIG "copy .xsession"
 sudo cp -rf SYSTEM/home/pi/.xinitrc SYSTEM/home/pi/.xsession /home/pi/
