@@ -1,5 +1,5 @@
 # install x-server
-if git -v; then
+if git --version; then
   echo "GIT ALREADY INSTALLED!"
 else
   time sudo apt-get -y install git
@@ -21,7 +21,7 @@ time sudo apt-get -y install python-setuptools python-pip  redis-server
 info SUCCESS "INSTALLED python libraries"
 time sudo apt-get -y install --no-install-recommends x11-xserver-utils
 info SUCCESS "installed x11-server-utils"
-time sudo apt-get -y install python-matplotlib python-tk
+time sudo apt-get -y install python-matplotlib python-tk feh
 info SUCCESS "installed matplotlib, and tk"
 time sudo pip install redis
 info SUCCESS "INSTALLed redis"
