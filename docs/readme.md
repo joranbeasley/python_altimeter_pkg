@@ -1,6 +1,6 @@
 # Installation
- (comming soon)
-
+ (comming soon, do not use the below command yet)
+  `curl https://raw.githubusercontent.com/joranbeasley/python_altimeter_pkg/master/install_scripts/wget_installer.sh | sudo sh`
 # Useage
 
 This software connects with an altimeter and usb serial gps puck
