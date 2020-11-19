@@ -38,8 +38,7 @@ fi
 
 cat SYSTEM/home/pi/.bashrc >> /home/pi/.bashrc
 
-echo "INSTALL pyserial"
-sudo pip install pyserial
+
 # /usr/lib/xorg/Xorg :0 -seat seat0 -auth /var/run/lightdm/root/:0 -nolisten tcp vt7 -novtswitch -s 0 dpms
 #create logfile folder
 echo "CREATE Logfiles Directory"
