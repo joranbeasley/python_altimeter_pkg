@@ -35,10 +35,18 @@ sudo cp -rf SYSTEM/etc/systemd/* /etc/systemd/
 
 echo "copy .xinitrc and .xserverrc"
 ls SYSTEM/home/pi -la
-sudo cp -rf ./SYSTEM/home/pi/.xinitrc SYSTEM/home/pi/.xserverrc SYSTEM/home/pi/start-altimeter-gui.sh SYSTEM/home/pi/start-serial-worker.sh SYSTEM/home/pi/.tmux.conf  /home/pi
+sudo cp -rf SYSTEM/home/pi/.xinitrc SYSTEM/home/pi/.xserverrc /home/pi/
+sudo cp -rf SYSTEM/home/pi/start-altimeter-gui.sh SYSTEM/home/pi/start-serial-worker.sh /home/pi/
+sudo chmod +x /home/pi/start-altimeter-gui.sh
+sudo chmod +x /home/pi/start-serial-worker.sh
+sudo cp -rf SYSTEM/home/pi/.tmux.conf  /home/pi/
 sudo chmod 777 /home/pi/start-serial-worker.sh
 sudo chmod 777 /home/pi/start-altimeter-gui.sh
 echo "fix bashrc"
+if grep -q "# added for python_altimeter_pkg" /etc/fstab; then
+   echo "already added first delete it"
+fi
+
 cat SYSTEM/home/pi/.bashrc >> /home/pi/.bashrc
 
 echo "INSTALL pyserial"
@@ -51,4 +59,4 @@ sudo chmod 777 /logfiles
 
 echo "INSTALL PITFT ... then restart"
 #install touch drivers this will cause a reboot
-sudo /bin/bash adafruit-pitft-setup.sh -c1 -r1 -m2
+# sudo /bin/bash adafruit-pitft-setup.sh -c1 -r1 -m2
