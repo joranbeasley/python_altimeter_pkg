@@ -5,8 +5,8 @@ sudo sed -i "s/#* *framebuffer_width=.*/framebuffer_width=320/g" /boot/config.tx
 sudo sed -i "s/#* *framebuffer_height=.*/framebuffer_height=240/g" /boot/config.txt
 
 # set x-server startup command included extra `-s 0 dpms` from default in order to disable sleep
-echo "DISABLE SLEEP"
-sudo sed -i "s/#xserver-command=/usr/lib/xorg/Xorg :0 -seat seat0 -auth /var/run/lightdm/root/:0 -nolisten tcp vt7 -novtswitch -s 0 dpms"
+# echo "DISABLE SLEEP"
+# sudo sed -i "s/#xserver-command=/usr/lib/xorg/Xorg :0 -seat seat0 -auth /var/run/lightdm/root/:0 -nolisten tcp vt7 -novtswitch -s 0 dpms"
 
 ## INSTALL PACKAGE FILES
 echo -e "\n\nINSTALLING PACKAGE FILES"
