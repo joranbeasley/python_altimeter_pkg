@@ -178,18 +178,15 @@ class GPSWorker:
                         devices.update({'gps':'disconnected'})
                         print("SET DEVICES:",devices)
                         SerialWorker.r.set('devices',json.dumps(devices))
-                    
-
                 else:
                     if devices['gps'] == "disconnected":
                         devices.update({'gps': 'connected'})
                         print("SET DEVICES:", devices)
                         SerialWorker.r.set('devices', json.dumps(devices))
-		    print("START READING!")
                     self.read_forever(conn,pub)
-            self.update_redis_reading({"altitude_sealevel":""})
+            self.update_redis_reading({"altitude_sealevel":"","num_satellites":"-1","satellites_signal":"-1"})
             time.sleep(1)
-            
+
     @staticmethod
     def update_redis_reading(reading):
         # print("UPDATE:",reading)
@@ -281,11 +278,11 @@ class SerialWorker:
                 self.r.set('devices',json.dumps(states))
         if states.get('usb','') != "connected":
             if len(glob.glob("/dev/sd*")) > 0:
-                states.update({'gps':'connected'})
+                states.update({'usb':'connected'})
                 self.r.set('devices',json.dumps(states))
         else:
             if len(glob.glob("/dev/sd*")) < 1:
-                states.update({'gps': 'disconnected'})
+                states.update({'usb': 'disconnected'})
                 self.r.set('devices',json.dumps(states))
         print("DEVICE STATES UPDATED:",states)
 
