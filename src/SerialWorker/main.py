@@ -278,10 +278,12 @@ class SerialWorker:
                 self.r.set('devices',json.dumps(states))
         if states.get('usb','') != "connected":
             if len(glob.glob("/dev/sd*")) > 0:
+                os.system("sudo mount -a")
                 states.update({'usb':'connected'})
                 self.r.set('devices',json.dumps(states))
         else:
             if len(glob.glob("/dev/sd*")) < 1:
+                os.system("sudo umount /mnt/USB")
                 states.update({'usb': 'disconnected'})
                 self.r.set('devices',json.dumps(states))
         print("DEVICE STATES UPDATED:",states)

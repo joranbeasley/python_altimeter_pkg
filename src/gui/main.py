@@ -270,7 +270,7 @@ class Layout:
             'devices':decode(r.get('devices'),{"gps":"disconnected","altimeter":"disconnected","usb":"disconnected"}),
         }
     def request_download(self):
-        r.publish("download","/fake_usb")
+        r.publish("download","/mnt/USB")
         self.root.focus_set()
 
     def update_tick(self):
