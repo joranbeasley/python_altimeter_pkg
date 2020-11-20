@@ -4,6 +4,7 @@ if git --version; then
 else
   time sudo apt-get -y install git
 fi
+start_time=$(python -c "import time;print(time.time())")
 function info() {
     system="$1"
     group="${system}"
@@ -42,4 +43,7 @@ info SUCCESS "installed lightdm" #loginmanager
 sudo ./adafruit-pitft-setup.sh -c1 -r1 -m2
 sudo sed -i "s/autologin-user=root/autologin-user=pi/" /etc/lightdm/lightdm.conf
 echo "REBOOT NOW!!!!"
+python -c "import time;print('Took %0.0fm%0.2fs To Run Complete SCRIPT'%divmod(time.time()-$start_time,60))"
+sleep 1
+echo "REBOOT"
 sudo reboot
