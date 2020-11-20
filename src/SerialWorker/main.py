@@ -218,7 +218,14 @@ class SerialWorker:
         from altimeter_ser import log as alog
         # log = logging.getLogger("gps_raw")
         # alog = logging.getLogger("altimeter_errors")
+        try:
+            devices = json.loads(SerialWorker.r.get("devices"))
+        except:
+            devices = {}
+        SerialWorker.addDevices(usb="disconnected")
+
         print("DOWNLOAD LOGFILES TO: %s"%copyTo)
+        os.system("mount -a")
         final_path = os.path.join(copyTo,"logfiles")
         shutil.rmtree(final_path,True)
         os.makedirs(final_path)
@@ -233,7 +240,9 @@ class SerialWorker:
                 os.remove(fname)
             except:
                 print("CANNOT REMOVE %s"%fname)
-
+        os.system("sync")
+        os.system("umount /mnt/USB")
+        SerialWorker.addDevices(usb="connected")
     def main_loop(self):
         p1 = threading.Thread(target=start_altimeter)
         p2 = threading.Thread(target=start_gps)
