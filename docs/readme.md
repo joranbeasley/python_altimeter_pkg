@@ -1,5 +1,6 @@
 # Installation
- (comming soon, do not use the below command yet)
+  see also : [Full installation instructions](../install_scripts/README_X11.md)  
+    
   `curl https://raw.githubusercontent.com/joranbeasley/python_altimeter_pkg/master/install_scripts/wget_installer.sh | sudo sh`
 # Useage
 
