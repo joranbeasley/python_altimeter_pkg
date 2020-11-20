@@ -1,5 +1,5 @@
 #!/bin/bash
-
+DISPLAY=:0 /usr/bin/feh --bg-tile  /home/pi/python_altimeter_pkg/src/gui/resources/splash2.gif
 export PYTHONPATH=/home/pi/python_altimeter_pkg/src
 cd /home/pi/python_altimeter_pkg/src
-/usr/bin/python gui/main.py
+DISPLAY=:0 /usr/bin/python gui/main.py

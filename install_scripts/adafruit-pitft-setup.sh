@@ -798,13 +798,16 @@ info PITFT "Success!"
 echo
 echo "Settings take effect on next boot."
 echo
-echo -n "REBOOT NOW? [y/N] "
-read
-if [[ ! "$REPLY" =~ ^(yes|y|Y)$ ]]; then
-        echo "Exiting without reboot."
-        exit 0
-fi
-
-echo "Reboot started..."
-reboot
+echo "Exiting without reboot."
 exit 0
+
+# echo -n "REBOOT NOW? [y/N] "
+# read
+# if [[ ! "$REPLY" =~ ^(yes|y|Y)$ ]]; then
+#        echo "Exiting without reboot."
+#        exit 0
+#fi
+
+# echo "Reboot started..."
+#reboot
+# exit 0
