@@ -64,3 +64,6 @@ sudo cp -rf SYSTEM/home/pi/.tmux.conf  /home/pi/
 info CONFIG "CREATE Logfiles Directory"
 sudo mkdir /logfiles
 sudo chmod 777 /logfiles
+
+info CONFIG "CREATE usb mountpoint [/mnt/USB] Directory"
+sudo mkdir /mnt/USB
