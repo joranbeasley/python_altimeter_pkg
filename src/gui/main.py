@@ -18,6 +18,7 @@ except:
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from matplotlib.ticker import FuncFormatter, MaxNLocator
+import signal
 import datetime
 import logging
 from logging.handlers import RotatingFileHandler
@@ -26,6 +27,7 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(RotatingFileHandler("/logfiles/main_gui.log",maxBytes=500000,backupCount=1))
 logger.addHandler(logging.StreamHandler())
 r = redis.StrictRedis(host='localhost', port=6379, db=0)
+
 class StatusLight:
     def __init__(self,master,label,state=0,colors=["red","green"]):
         self.root = master
@@ -346,15 +348,29 @@ class MyApp:
         def update_ui():
             self.layout.update_tick()
             self.root.after(1000, update_ui)
+
         self.root = tk.Tk()
+        self.root.withdraw()
+        def show_me():
+            self.root.update()
+            self.root.deiconify()
+            self.root.update()
+            self.layout.buttons[0]['state'] = tk.NORMAL
+
+
         #self.root.after(1000,lambda:self.layout.updateHeader(bg="black",fg="red",text="No Devices!!!"))
         self.root.configure(bg="white")
         self.root.geometry("320x240")
         self.layout = Layout(self.root)
         update_ui()
+        self.root.after(1000, show_me)
 
     def mainloop(self):
-        self.root.mainloop()
+        try:
+            self.root.mainloop()
+        except:
+            logger.exception()
+            raise
 
 if __name__ == "__main__":
     MyApp().mainloop()
