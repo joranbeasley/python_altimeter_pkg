@@ -2,7 +2,7 @@
 Description=SerialAltimeterMonitor
 
 [Service]
-ExecStart=/home/pi/start-serial-monitor.sh
+ExecStart=/home/pi/start-serial-monitor
 Restart=always
 
 [Install]
