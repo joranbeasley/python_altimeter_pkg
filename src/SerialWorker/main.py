@@ -213,16 +213,22 @@ class SerialWorker:
         self.r.set("gps","disconnected")
         self.r.set('altimeter',"disconnected")
         self.main_loop()
-    def download_logs(self,copyTo="/mnt/usb"):
+    def download_logs(self,copyTo="/mnt/USB"):
         from gps_ser import log
         from altimeter_ser import log as alog
         # log = logging.getLogger("gps_raw")
         # alog = logging.getLogger("altimeter_errors")
+        print("DOWNLOAD LOGFILES TO: %s"%copyTo)
         final_path = os.path.join(copyTo,"logfiles")
         shutil.rmtree(final_path,True)
         os.makedirs(final_path)
         for fname in glob.glob("/logfiles/*"):
-            shutil.copy2(fname,final_path)
+            if fname.endswith(".csv"):
+                print("DOWNLOAD: %r -> %r"%(fname,copyTo))
+                shutil.copy2(fname,copyTo)
+            else:
+                print("DOWNLOAD: %r -> %r"%(fname,final_path))
+                shutil.copy2(fname,final_path)
             try:
                 os.remove(fname)
             except:
@@ -278,12 +284,10 @@ class SerialWorker:
                 self.r.set('devices',json.dumps(states))
         if states.get('usb','') != "connected":
             if len(glob.glob("/dev/sd*")) > 0:
-                os.system("sudo mount -a")
                 states.update({'usb':'connected'})
                 self.r.set('devices',json.dumps(states))
         else:
             if len(glob.glob("/dev/sd*")) < 1:
-                os.system("sudo umount /mnt/USB")
                 states.update({'usb': 'disconnected'})
                 self.r.set('devices',json.dumps(states))
         print("DEVICE STATES UPDATED:",states)
