@@ -2,6 +2,8 @@
   see also : [Full installation instructions](../install_scripts/README_X11.md)  
     
   `curl https://raw.githubusercontent.com/joranbeasley/python_altimeter_pkg/master/install_scripts/wget_installer.sh | sudo sh`
+  
+  (note this may take a half hour to run)
 # Useage
 
 This software connects with an altimeter and usb serial gps puck
