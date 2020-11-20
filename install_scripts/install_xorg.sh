@@ -36,7 +36,7 @@ time sudo /bin/bash configure_sys.sh
 info SUCCESS "SYSTEM CONGIFURED installing PITFT ... then restart"
 #install touch drivers this will cause a reboot
 wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/adafruit-pitft.sh
-chmod +x adafruit-pitft.sh
+chmod +x adafruit-pitft-setup.sh
 time sudo apt-get -y install lightdm
 info SUCCESS "installed lightdm" #loginmanager
-sudo ./adafruit-pitft.sh
+sudo ./adafruit-pitft.sh -c1 -r1 -m2
