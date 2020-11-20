@@ -35,11 +35,15 @@ sudo systemctl enable fbsplash1
 sudo systemctl daemon-reload
 
 info CONFIG "copy .xsession"
-sudo cp -rf SYSTEM/home/pi/.xinitrc SYSTEM/home/pi/.xsession /home/pi/
+sudo cp -rf SYSTEM/home/pi/.xsession /home/pi/
+sudo chown pi:pi /home/pi/.xsession
+
 info CONFIG "copy start-altimeter-gui and start-serial-monitor executables"
 sudo cp -rf SYSTEM/home/pi/start-altimeter-gui SYSTEM/home/pi/start-serial-monitor /home/pi/
 sudo chmod +x /home/pi/start-altimeter-gui
 sudo chmod +x /home/pi/start-serial-monitor
+sudo chown pi:pi /home/pi/start-altimeter-gui
+sudo chown pi:pi /home/pi/start-serial-monitor
 sudo chmod 777 /home/pi/start-serial-monitor
 sudo chmod 777 /home/pi/start-altimeter-gui
 
