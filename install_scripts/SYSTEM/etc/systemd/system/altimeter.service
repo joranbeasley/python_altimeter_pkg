@@ -1,0 +1,9 @@
+[Unit]
+Description=Altimeter Gui Service
+
+[Service]
+ExecStart=/home/pi/start-altimeter-gui
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
