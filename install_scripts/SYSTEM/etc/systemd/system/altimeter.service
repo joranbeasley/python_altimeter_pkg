@@ -2,6 +2,8 @@
 Description=Altimeter Gui Service
 
 [Service]
+Environment=DISPLAY=:0
+User=pi
 ExecStart=/home/pi/start-altimeter-gui
 Restart=always
 
