@@ -1,4 +1,5 @@
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015",  SYMLINK+="altimeter"
 SUBSYSTEM=="tty", ATTRS{idVendor}=="067b", ATTRS{idProduct}=="2303", SYMLINK+="gps"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="058b", ATTRS{idProduct}=="0058", SYMLINK+="urad"
 
 
