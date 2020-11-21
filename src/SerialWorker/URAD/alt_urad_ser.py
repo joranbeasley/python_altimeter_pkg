@@ -25,12 +25,10 @@ class AltimeterUradSer:
         self.cfg = {}
         self.__do_configure()
     def get_reading(self):
-        ret_code,results,raw_results = URAD.detection(self.ser)
-        nTar = results[0]
-        altitude = results[1][0]
-        vel  = results[2][0]
-        snr  = results[3][0]
-        return {"altitude_ground":altitude,"speed_ground":vel,"snr_ground":snr}
+        ret_code,results,raw_results,raw_bytes = URAD.detection(self.ser)
+        log.debug("RAW RESULT: %r"%(raw_bytes,))
+        log.info("RESULTS2: %r"%(results))
+        return {"altitude_ground":results[1][0],"speed_ground":results[2][0],"snr_ground":results[3][0]}
     def read_forever(self,callback, delay=0.25):
         while True:
             callback(self.get_reading())

@@ -110,6 +110,7 @@ def loadConfiguration(ser, mode, f0, BW, Ns, Ntar, Rmax, MTI, Mth, Alpha, distan
 
 
 def detection(ser):
+    rawBytes = bytearray('')
     if (get_distance or get_velocity or get_SNR):
         NtarDetected = 0
         buff_temp = [0] * 4
@@ -151,6 +152,7 @@ def detection(ser):
             if (get_distance or get_velocity or get_SNR or get_movement):
                 # Receive results
                 results = ser.read(results_packetLen)
+                rawBytes += bytearray(results)
                 if (len(results) == results_packetLen):
                     if (get_distance or get_velocity or get_SNR):
                         Ntar_temp = (configuration[3] & 0b00011100) >> 2
@@ -195,6 +197,7 @@ def detection(ser):
 
             if (get_I):
                 bufferIbytes = ser.read(total_bytes)
+                rawBytes += bytearray(bufferIbytes)
                 if (len(bufferIbytes) == total_bytes):
                     for i in range(two_blocks_1):
                         I[i * 2 + 0] = (bufferIbytes[i * 3 + 0] << 4) + (bufferIbytes[i * 3 + 1] >> 4)
@@ -233,6 +236,7 @@ def detection(ser):
 
             if (get_Q):
                 bufferQbytes = ser.read(total_bytes)
+                rawBytes += bytearray(bufferQbytes)
                 if (len(bufferQbytes) == total_bytes):
                     for i in range(two_blocks_1):
                         Q[i * 2 + 0] = (bufferQbytes[i * 3 + 0] << 4) + (bufferQbytes[i * 3 + 1] >> 4)
@@ -269,7 +273,7 @@ def detection(ser):
                 else:
                     return -2, [], []
 
-            return 0, [NtarDetected, distance, velocity, SNR, movement], [I, Q]
+            return 0, [NtarDetected, distance, velocity, SNR, movement], [I, Q],rawBytes
         else:
             return -1, [], []
     except:
