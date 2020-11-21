@@ -1,0 +1,51 @@
+####################################################################################
+#  Configuration details for urad sensor (change the values under [config] below
+#  see also: uRAD - `User Manual SDK1.1 - USB - EN.pdf`
+#
+#  inputs - descriptions
+#   - `mode`:
+#      1 - continuous wave (dist=0.45m - 60m,meas=speed,38samp/sec)
+#      2 - sawtooth wave   (dist=0.45m - 100m,meas=dist,21samp/sec)
+#      3 - triangle wave   (dist=0.45m - 100m,speed&dist,13samp/sec)
+#      4 - dual-rate wave  (dist=0.45m - 75m),speed&dist,7samp/sec)
+#   - `f0` - operation frequency/ramp start frequency:  runs at 24.{f0} GHz, (eg if f0 = 38 => 24.038 GHz; if f0=121 => 24.121GHz, f0=5 => 24.005GHz)
+#   - `BW` - operation bandwidth (minValue=50,maxBW=245-`f0`) , higher BW the better the accuracy (not used in mode 1)
+#          * if operating in an area with lots of interferring signals try tweaking BW&f0 to get a distinct signal, reducing interference(page 7-8 of User Manual)
+#   - `Ns` - number of samples to take of reflected wave to calculat dist/speed (range 50 -> 200), lower number = faster reads
+#           * relation THEORETICAL_DIST_max = 75*(`Ns`/`BW`) is important (ie if Ns=50 & BW=250 => maxDist is only 15.625m; if Ns=200&BW=50 theoretical maxDist is 300m(not acheivable)
+
+#  inputs - valid options by mode
+
+
+
+[config]
+# input parameters
+# sawtooth mode=2
+mode = 2 
+# starting at 24.005 GHz = 5
+f0 = 5 
+# using all the BW available = 240 MHz 
+BW = 240 
+# 200 samples
+Ns = 200 
+# 3 target of interest
+Ntar = 3 
+# searching along the full distance range
+Rmax = 100 
+# MTI mode disable because we want informationof static and moving targets
+MTI = 0 
+# parameter not used because "movement" is notrequested
+Mth = 0 
+# recommended value of alpha for mode 2
+Alpha = 10 
+# Request distance information
+distance_true = True 
+# mode 2 does not provide velocity information
+velocity_true = False 
+# Signal-to-Noise-Ratio information requested
+SNR_true = True
+# In-Phase Component (RAW data) not requested
+I_true = False 
+#Quadrature Component (RAW data) not requested
+Q_true = False 
+movement_true = False 
