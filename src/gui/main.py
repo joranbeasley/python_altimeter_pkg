@@ -11,6 +11,8 @@ import time
 import traceback
 
 import redis
+from matplotlib import animation
+
 try:
     import tkinter as tk
 except:
@@ -35,6 +37,7 @@ class StatusLight:
 def timeTicks(x, pos):
     d = datetime.timedelta(seconds=x%86400)
     return str(d)
+figure =  Figure(figsize=(4,1), dpi=75)
 
 class Header:
     def __init__(self,master,label="initializing",bg="white",fg="black",gps="no",alt="no"):
@@ -184,10 +187,18 @@ class Layout:
         self.plot_records = self.plot_records[-100:]
         self.plot_records2 = self.plot_records2[-100:]
         self.sealevel.config(text="%0.1f \nmeters sealevel"%(value2))
-        if self.th is None:
-            self.th = True
-            threading.Thread(target=self.update_chart).start()
 
+
+    def update_chart_easy(self):
+        t0 = time.time()
+        times, alt = zip(*self.plot_records)
+        self.axes.clear()
+        self.axes.plot(times,alt)
+        if self._trace2:
+            times, gps = zip(*self.plot_records2)
+            self.axes.plot(times,gps)
+        self._fixAxes()
+        print "Took %0.2fs to replot!"%(time.time()-t0)
     def update_chart(self):
         #delete old data
         t0 = time.time()
@@ -234,7 +245,7 @@ class Layout:
         print("FIX AX:",time.time()-t4)"""
     def _createFigure(self):
         t0 = time.time()
-        self.fig = Figure(figsize=(4, 1), dpi=75)
+        self.fig = figure
         self.fig.patch.set_facecolor("white")
         self.time_axis_formatter = FuncFormatter(timeTicks)
         self.axes = self.fig.add_subplot(111)
@@ -272,6 +283,9 @@ class Layout:
     def request_download(self):
         r.publish("download","/mnt/USB")
         self.root.focus_set()
+    def update_chart_tick(self,i):
+        print("Update The Chart?")
+        self.update_chart_easy()
 
     def update_tick(self):
         t0 = time.time()
@@ -373,5 +387,7 @@ class MyApp:
             raise
 
 if __name__ == "__main__":
-    MyApp().mainloop()
+    app = MyApp()
+    ani = animation.FuncAnimation(figure, app.layout.update_chart_tick, interval=1000)
+    app.mainloop()
 
