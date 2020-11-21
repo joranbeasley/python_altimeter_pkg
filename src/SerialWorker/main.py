@@ -32,23 +32,62 @@ class SerialAltimeterWorker:
 
 
     def get_reading(self,conn):
+
         return conn.get_reading()
 #        return {
 #            "altitude_ground": "ASDASD", #random.uniform(1000, 2000),
 #        }
-    def main_loop(self):
+#     def main_loop(self):
+#         while True:
+#             reading = self.get_reading(None)
+#             GPSWorker.update_redis_reading(reading)
+#             time.sleep(0.1)
+    def read_forever(self,conn,pub):
         while True:
-            reading = self.get_reading(None)
+            msg = pub.get_message(ignore_subscribe_messages=1)  # get_message(ignore_subscribe_message=True)
+            if msg:
+                if msg['channel'] == "kill_t1":
+                    print("\n\nKILLING LOOP ALTIMETER OUTTER!!!\n\n")
+                    sys.exit(0)
+            try:
+                reading = self.get_reading(conn)
+            except:
+                print("ERROR GETTING READING!")
+                reading = None
+            print("GOT ALTIMETER READING!@#", reading)
+            if not reading:
+                print("CLOSED!!!")
+                conn.close()
+                time.sleep(0.1)
+                break
             GPSWorker.update_redis_reading(reading)
-            time.sleep(0.1)
+            time.sleep(0.5)
+    def get_smart_micro(self):
+        from altimeter_ser import AltimeterSer
+        conn = AltimeterSer("/dev/altimeter")
+        time.sleep(0.1)
+        print("OPENED smartmicro ALTIMETER!!!")
+        return conn
+    def get_urad(self):
+        from URAD.alt_urad_ser import AltimeterUradSer
+        conn = AltimeterUradSer("/dev/urad")
+        time.sleep(0.1)
+        print("OPENED smartmicro ALTIMETER!!!")
+        return conn
+    def get_altimeter_instance(self):
+        if os.path.exists("/dev/altimeter"):
+            print("I think there is a smartmicro attached, attempting to connect")
+            return self.get_smart_micro()
+        elif os.path.exists("/dev/urad"):
+            print("I think i have a urad distance unit attached")
+            return self.get_urad()
+        raise AssertionError("Unable to find altimeter instance! LSUSB RESULTS BELOW\n%s"%(os.popen("lsusb").read()))
 
     def main_loop_real(self):
-        from altimeter_ser import AltimeterSer
-        print("STARTING SERIAL ALTIMETER MAIN LOOP!!@#")
+
         pub = SerialWorker.r.pubsub()
         pub.subscribe("kill_t1")
         while True:
-            print("LOOP altimeter1")
             msg = pub.get_message(ignore_subscribe_messages=1) #get_message(ignore_subscribe_message=True)
             if msg:
                print("\n\nKILLING LOOP ALTIMETER OUTTER!!!\n\n")
@@ -58,37 +97,17 @@ class SerialAltimeterWorker:
                  devices = json.loads(SerialWorker.r.get("devices")) # ==  "connected":
             except:
                  devices = {'gps':'disconnected', 'altimeter':'disconnected', 'usb':'disconnected'}
-            print("altimeter DEVICES:",devices)
             if devices.get("altimeter") ==  "connected":
-                print("ALTIMETER CONNECTED!")
                 try:
-                    conn = AltimeterSer("/dev/altimeter")
-                    time.sleep(0.1)
-                    print("OPENED ALTIMETER!!!")
+                    conn = self.get_altimeter_instance()
                 except:
+                    print("FAILED TO OPEN ALTIMETER even though i expected to!!!")
+                    SerialWorker.addDevices(altimeter="disconnected")
                     traceback.print_exc()
-                    print("DID NOT OPEN ALTIMETER!!")
                     time.sleep(0.7)
                     continue
-                while True:
-                    msg = pub.get_message(ignore_subscribe_messages=1) #get_message(ignore_subscribe_message=True)
-                    if msg:
-                        if msg['channel'] == "kill_t1":
-                            print("\n\nKILLING LOOP ALTIMETER OUTTER!!!\n\n")
-                            sys.exit(0)
-                    try:
-                        reading = self.get_reading(conn)
-                    except:
-                        print("ERROR GETTING READING!")
-                        reading = None
-                    print("GOT ALTIMETER READING!@#",reading)
-                    if not reading:
-                        print("CLOSED!!!")
-                        conn.close()
-                        time.sleep(0.1)
-                        break
-                    GPSWorker.update_redis_reading(reading)
-                    time.sleep(0.5)
+
+                self.read_forever(conn,pub)
             GPSWorker.update_redis_reading({"altitude_ground":""})
             print("Seeee if we are open again?")
             time.sleep(1)
@@ -284,11 +303,11 @@ class SerialWorker:
                 states.update({'gps':'disconnected'})
                 self.r.set('devices', json.dumps(states))
         if states.get('altimeter','') != 'connected':
-            if os.path.exists("/dev/altimeter"):
+            if os.path.exists("/dev/altimeter") or os.path.exists('/dev/urad'):
                 states.update({'altimeter':'connected'})
                 self.r.set('devices',json.dumps(states))
         else:
-            if not os.path.exists('/dev/altimeter'):
+            if not os.path.exists('/dev/altimeter') and not os.path.exists('/dev/urad'):
                 states.update({'altimeter':'disconnected'})
                 self.r.set('devices',json.dumps(states))
         if states.get('usb','') != "connected":

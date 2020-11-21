@@ -49,12 +49,12 @@ class AltimeterSer:
             raw = self._getRawPayload()
         except AssertionError:
             log.exception("Error parsing Payload")
-            return {'altitude_ground': float('nan'),'velocity_ground':float("nan"),"radar_signal":float("nan")}
+            return {'altitude_ground': float('nan'),'speed_ground':float("nan"),"snr_ground":float("nan")}
         try:
-            return {'altitude_ground':self._unpackRawPayload(raw),'velocity_ground':float("nan"),"radar_signal":float("nan")}
+            return {'altitude_ground':self._unpackRawPayload(raw),'speed_ground':float("nan"),"snr_ground":float("nan")}
         except struct.error as e:
             log.exception("Unable to unpack malformed payload: %r"%(raw,))
-            return {'altitude_ground':float('nan'),'velocity_ground':float("nan"),"radar_signal":float("nan")}
+            return {'altitude_ground':float('nan'),'speed_ground':float("nan"),"snr_ground":float("nan")}
 
 
 if __name__ == "__main__":
