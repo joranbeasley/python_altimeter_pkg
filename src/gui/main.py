@@ -193,49 +193,19 @@ class Layout:
         self.main_label.configure(text="%0.1f"%value)
         self.chart.add_point(0,[time.time(),value])
         self.chart.add_point(1,[time.time(),value2],update=True)
-        #self.plot_records = self.plot_records[-100:]
-        #self.plot_records2 = self.plot_records2[-100:]
         self.sealevel.config(text="%0.1f \nmeters sealevel"%(value2))
 
 
     def _createFigure(self):
         self.chart = ChartPanel(self.root,320,80)
         self.chart.hideTrace(1)
-        points = []
-        # self.chart.add_trace(points)
-        # self.chart.update()
         self.chart.place(y=99)
-        counter = [1]
         return self.chart
-    def _createFigure_old(self):
-        t0 = time.time()
-        self.fig = figure
-        self.fig.patch.set_facecolor("white")
-        self.time_axis_formatter = FuncFormatter(timeTicks)
-        self.axes = self.fig.add_subplot(111)
-        self.ticks2 = MaxNLocator(nbins=2)
-        self.ticks1 = MaxNLocator(nbins=1)
-        self.canvas = FigureCanvasTkAgg(self.fig, master=self.root)
-        self.canvas._tkcanvas.config(bg='white', borderwidth=0, highlightthickness=0)
-        self.canvas.draw()
-        self.line1 = self.axes.plot([],[])[0]
-        self.line2 = self.axes.plot([],[])[0]
-        self.canvas.get_tk_widget().place(y=99,height=90)
-        self._fixAxes()
-        logger.info("Create Figure Took %0.2fs"%(time.time()-t0))
+
     def _fixAxes(self):
         traceback.print_stack()
         print("DONT CALL FIXAXES NOW!!!")
-    def _fixAxes_old(self):
-        self.axes.yaxis.set_major_locator(self.ticks1)
-        self.axes.xaxis.set_major_locator(self.ticks2)
-        self.axes.xaxis.set_major_formatter(self.time_axis_formatter)
-        try:
-            self.fig.tight_layout()
-        except:
-            logger.exception("Could not create tight_layout!")
-        finally:
-            self.canvas.draw()
+
     @staticmethod
     def get_data_from_redis():
         def decode(s,default=None):

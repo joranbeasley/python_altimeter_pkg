@@ -52,13 +52,14 @@ class Trace:
         #     yield numpy.array([[width//2,height//2]])
         else:
             #for x,y in self.points:
-            p1 = self.points
-            x = p1[:, 0]
-            y = p1[:, 1]
             xRange = self.parent.getXRange()
             yRange = self.parent.getYRange()
             xrangeSize = xRange[1] - xRange[0]
             yrangeSize = yRange[1] - yRange[0]
+            p1 = self.points[self.points[:,0]>=xRange[0]]
+            x = p1[:, 0]
+            y = p1[:, 1]
+
 
 
 
@@ -152,10 +153,7 @@ class ChartPanel:
             self.update()
     def add_trace(self,initialPoints,color=None,maxPoints=None):
         maxPoints = maxPoints or self.keepPoints
-        # color = color or self.colors[len(self.data)]
-        # print(self.data)
         self.data[len(self.data)] = Trace(self,initialPoints[:],color)
-        # print(self.data,self.data[0].points)
     def update(self):
         t0 = time.time()
         self._drawAxes()
@@ -164,7 +162,7 @@ class ChartPanel:
 
         # blit white background
         self.canvas.create_rectangle(-1,-1,self.width+2,self.height+2,fill=self.bg,outline=None)
-        print("FILL:",self.bg)
+        # print("FILL:",self.bg)
         for trace in sorted(self.data.keys()):
             # print(self.data[trace],self.data[trace].points)
 
@@ -173,7 +171,11 @@ class ChartPanel:
                 self.data[trace].draw(self.canvas,[self.cwidth,self.cheight],[self.margin[0],self.margin[1]])
         # axis line y
         self.canvas.create_line(self.margin[0],self.margin[1],self.margin[0],self.margin[1]+self.cheight,self.cwidth+self.margin[0],self.margin[1]+self.cheight)
-        # axis line x
+        self.canvas.create_line(
+            self.margin[0],self.margin[1],
+            self.cwidth+self.margin[0],self.margin[1],
+            self.margin[0]+self.cwidth,self.margin[1]+self.cheight,fill="grey")
+
         # self.canvas.create_line(self.cheight,5,self.cheight,5)
         self._drawXTicks()
         self._drawYTicks()
