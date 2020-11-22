@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+import sys
 import threading
 import csv
 import itertools
@@ -376,9 +377,15 @@ class MyApp:
         self.root.configure(bg="white")
         self.root.geometry("320x240")
         self.layout = Layout(self.root)
+        self.root.bind("<KeyRelease>",self.onKeyDown)
         update_ui()
         self.root.after(1000, show_me)
-
+    def onKeyDown(self,evt):
+        if evt.char == "U":
+            cmd = "%s %s"%(sys.executable,os.path.join(os.path.dirname(__file__),"urad_configure.py"))
+            print("EXEC:",cmd)
+            os.system(cmd)
+        print("KeyDown??",evt.char)
     def mainloop(self):
         try:
             self.root.mainloop()

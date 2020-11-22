@@ -35,7 +35,7 @@ def fix_checksums(s1):
     def calc_cs(s2):
         return "%02X"%reduce(operator.xor,bytearray(s2.strip("*$")))
     def replacer(m):
-        return m.group(1)+calc_cs(m.group(1))+"\r\n"
+        return m.group_upd(1) + calc_cs(m.group_upd(1)) + "\r\n"
     return re.sub("(\$GP.*?\*).{2}\r\n",replacer,s1)
 
 while True:

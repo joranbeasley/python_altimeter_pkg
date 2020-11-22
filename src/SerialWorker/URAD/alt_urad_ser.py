@@ -15,19 +15,20 @@ log = FakeLog()
 
 
 class AltimeterUradSer:
-    def __init__(self,port="/dev/urad"):
+    def __init__(self,port="/dev/urad",cfg=None):
         global log
+        cfg = cfg or {}
         log = logging.getLogger("urad_logger")
         log.setLevel(logging.DEBUG)
         log.addHandler(RotatingFileHandler("/logfiles/urad_log.txt", maxBytes=50000, backupCount=1))
         log.addHandler(logging.StreamHandler())
         self.ser = serial.Serial(port,1e6)
         self.cfg = {}
-        self.__do_configure()
+        self.__do_configure(cfg)
     def get_reading(self):
         ret_code,results,raw_results,raw_bytes = URAD.detection(self.ser)
-        log.debug("RAW RESULT: %r"%(raw_bytes,))
-        log.info("RESULTS2: %r"%(results))
+        # log.debug("RAW RESULT: %r"%(raw_bytes,))
+        # log.info("RESULTS2: %r"%(results))
         return {"altitude_ground":results[1][0],"speed_ground":results[2][0],"snr_ground":results[3][0]}
     def read_forever(self,callback, delay=0.25):
         while True:
@@ -48,14 +49,23 @@ class AltimeterUradSer:
                 except:
                     return data[key]
             cfg = {key: convert_or_fallback(key) for key in data}
-            log.info("Loaded CFG : %s"%(pprint.pformat(cfg)))
+            # log.info("Loaded CFG : %s"%(pprint.pformat(cfg)))
             return cfg
         except:
             log.exception("Error loading config: %r"%fpath)
             return data
-
-    def __do_configure(self):
+    def reconfigure(self,newCfg):
         self.cfg = self.__do_load_user_config_variables("/boot/urad_config.txt")
+
+        self.cfg.update({k:v for k,v in newCfg.items() if k in self.cfg})
+        print("RECONFIG:",self.cfg)
+        URAD.turnOFF(self.ser)
+        URAD.loadConfiguration(self.ser,**self.cfg)
+        URAD.turnON(self.ser)
+    def __do_configure(self,cfg=None):
+        cfg = cfg or {}
+        self.cfg = self.__do_load_user_config_variables("/boot/urad_config.txt")
+        self.cfg.update(cfg)
         URAD.loadConfiguration(self.ser,**self.cfg)
         URAD.turnON(self.ser)
 

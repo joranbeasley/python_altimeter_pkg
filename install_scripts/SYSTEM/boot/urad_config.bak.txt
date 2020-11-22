@@ -25,9 +25,9 @@
 # sawtooth mode=2
 mode=2
 # starting at 24.005 GHz = 5
-f0=5
+f0=100
 # using all the BW available = 240 MHz
-BW=240
+BW=145
 # 200 samples
 Ns=200
 # 3 target of interest
@@ -40,9 +40,9 @@ Alpha=10
 # searching along the full distance range
 Rmax=100
 # MTI mode disable because we want informationof static and moving targets
-MTI=0
+MTI=True
 # parameter not used because "movement" is notrequested
-Mth=0
+Mth=4
 # Request distance information
 distance_true=True
 # mode 2 does not provide velocity information

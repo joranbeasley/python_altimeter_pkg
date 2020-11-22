@@ -13,7 +13,7 @@ log.setLevel(logging.DEBUG)
 hnd = RotatingFileHandler("/logfiles/gps_raw.txt", backupCount=1, maxBytes=25000)
 hnd.setFormatter(logging.Formatter("%(asctime)-15s - %(message)s"))
 log.addHandler(hnd)
-log.warn("OPENED!")
+
 def safe_float(val):
     try:
         return float(val)
