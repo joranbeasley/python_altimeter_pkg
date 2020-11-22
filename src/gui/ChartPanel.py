@@ -2,7 +2,6 @@ import itertools
 import time
 
 import numpy
-import pandas
 
 try:
     import tkinter as tk

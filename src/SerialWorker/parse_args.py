@@ -101,11 +101,11 @@ def setup_arguments():
     reading_g = group_upd.add_parser("reading", help="update the active reading")
     reading_g.add_argument("-a", "--altitude_ground", type=float, required=False,action="store")
     reading_g.add_argument('-b', "--altitude_sealevel", type=float, required=False,action="store")
-    reading_g.add_argument('-g', '--geiod_height', type=float, required=False,action="store")
+    reading_g.add_argument('-g', '--geoid_height', type=float, required=False,action="store")
     reading_g.add_argument('-l', '--latitude', type=float, required=False,action="store")
     reading_g.add_argument('-n', '--longitude', type=float, required=False,action="store")
     reading_g.add_argument('-q', '--num-sat',dest="num_satellites", type=int, required=False,action="store")
-    reading_g.add_argument('-s', '--sat-signal', type=int, required=False,action="store")
+    reading_g.add_argument('-s', '--sat-signal',dest="satellites_signal", type=int, required=False,action="store")
     #
     devices_g = group_upd.add_parser("connect", help="update connected devices")
     devices_g.add_argument('-a',"--altimeter", required=False,action="store_true")

@@ -10,19 +10,12 @@ import json
 import random
 import time
 import traceback
-
-import numpy
 import redis
-from matplotlib import animation
 
 try:
     import tkinter as tk
 except:
     import Tkinter as tk
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
-from matplotlib.ticker import FuncFormatter, MaxNLocator
-import signal
 import datetime
 import logging
 from logging.handlers import RotatingFileHandler
@@ -40,7 +33,7 @@ class StatusLight:
 def timeTicks(x, pos):
     d = datetime.timedelta(seconds=x%86400)
     return str(d)
-figure =  Figure(figsize=(4,1), dpi=75)
+# figure =  Figure(figsize=(4,1), dpi=75)
 
 class Header:
     def __init__(self,master,label="initializing",bg="white",fg="black",gps="no",alt="no"):
