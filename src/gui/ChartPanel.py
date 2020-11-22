@@ -158,7 +158,7 @@ class ChartPanel:
         self._drawAxes()
         print("Took %0.2fs to redraw chart"%(time.time()-t0))
     def _drawAxes(self,xOffset=0):
-
+        self.canvas.delete(tk.ALL)
         # blit white background
         self.canvas.create_rectangle(-1,-1,self.width+2,self.height+2,fill=self.bg,outline=None)
         # print("FILL:",self.bg)
