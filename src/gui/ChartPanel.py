@@ -1,3 +1,4 @@
+import itertools
 import time
 
 import numpy
@@ -8,23 +9,34 @@ try:
 except:
     import Tkinter as tk
 class Trace:
-    def __init__(self,points=None, color='#000000'):
+    _xrangefn = None
+    colors = itertools.cycle(['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22',
+              '#17becf'])
+
+    def __init__(self,parent,points=None, color=None,maxPoints=300):
         # print("SET:",points)
+        self.parent = parent
         self.set_points(points)
-        self.color = color
+        self.color = color or next(self.colors)
+        self.maxPoints = maxPoints
 
     def add_point(self,xVal,yVal):
-        print("ADD :",xVal,yVal)
-        self.set_points(numpy.array(self.points.tolist()[-99:]+[[xVal,yVal]]))
+        # print("ADD :",xVal,yVal)
+        self.set_points(numpy.array(self.points.tolist()[1-self.maxPoints:]+[[xVal,yVal]]))
+        # print("ADD(2):(last= %s)" % (self.points[-1]))
 
-        print("ADD(2):(last= %s)" % (self.points[-1]))
     def set_points(self,values):
-        if values is not None:
+        if values is not None and len(values) > 0:
+            # print("VALUES:",values)
             self.points = numpy.array(values) if not isinstance(values, (numpy.ndarray, numpy.generic) ) else values
+
             x = self.points[:, 0]
             y = self.points[:, 1]
-            self.xRange = [x.min(), x.max()]
-            self.yRange = [y.min(), y.max()]
+            # print("Y=",y)
+            self.xRange = [numpy.nanmin(x), numpy.nanmax(x)]
+            self.yRange = [numpy.nanmin(y), numpy.nanmax(y)]
+            if self.yRange[0] == self.yRange[1]:
+                self.yRange = [self.yRange[0]-1.0,self.yRange[1]+1.0]
         else:
             self.points = numpy.array([])
             self.xRange = [float("inf"), float("-inf")]
@@ -32,54 +44,87 @@ class Trace:
         # print("POINTS SET",self.points, self)
     def set_color(self,color):
         self.color = color
-    def translate(self,width,height,offsetX=0,offsetY=0,flat=False):
+    def translate(self,width,height,offsetX=0,offsetY=0):
         # print(self, self.points)
         if len(self.points) == 0:
-            return numpy.array([])
-        if len(self.points) == 1:
-            return numpy.array([[width//2,height//2]])
-        #for x,y in self.points:
-        p1 = self.points
-        x = p1[:, 0]
-        y = p1[:, 1]
-        xr = self.xRange[1]-self.xRange[0]
-        yr = self.yRange[1] - self.yRange[0]
-        nx = ((x-self.xRange[0])/float(xr))*width + offsetX
-        ny = height - height*((y-self.yRange[0])/float(yr)) + offsetY
-        return numpy.array([nx,ny]).T if not flat else numpy.array([nx,ny]).T.flatten()
+            yield numpy.array([])
+        # elif len(self.points) == 1:
+        #     yield numpy.array([[width//2,height//2]])
+        else:
+            #for x,y in self.points:
+            p1 = self.points
+            x = p1[:, 0]
+            y = p1[:, 1]
+            xRange = self.parent.getXRange()
+            yRange = self.parent.getYRange()
+            xrangeSize = xRange[1] - xRange[0]
+            yrangeSize = yRange[1] - yRange[0]
+
+
+
+            nx = ((x-xRange[0])/float(xrangeSize))*width + offsetX
+            ny = height - height*((y-yRange[0])/float(yrangeSize)) + offsetY
+            results = numpy.array([nx,ny]).T # if not flat else numpy.array([nx,ny]).T.flatten()
+            ix = [-1,] + numpy.where(numpy.isnan(results).any(1))[0].tolist() + [1000]
+            slices = [(i+1,j) for i,j in zip(ix,ix[1:]) if i+1 != j]
+            for slice in slices:
+                yield results[slice[0]:slice[1]]
+
 
 
     def draw_point(self,canvas,x,y):
-        def _create_circle(self, x, y, r, **kwargs):
-            return self.create_oval(x - r, y - r, x + r, y + r, **kwargs)
-        pass
+        def _create_circle(x, y, r, **kwargs):
+            return canvas.create_oval(x - r, y - r, x + r, y + r, **kwargs)
+        _create_circle(x,y,3,fill=self.color)
     def draw(self,canvas,draw_area_size,offset):
         # print("DRAW:",self,self.points)
-        print("DRAW:(last= %s)"%(self.points[-1]))
-        p2 = self.translate(draw_area_size[0],draw_area_size[1],offset[0],offset[1])
-        # print("P2:",p2)
-        # for pt in p2:
-        #     print("PT:",pt)
-        #     self.draw_point(canvas,pt[0],pt[1])
+        if len(self.points) == 0:
+            return
+        # print("DRAW:(last= %s)"%(self.points[-1]))
+        for p2 in self.translate(draw_area_size[0],draw_area_size[1],offset[0],offset[1]):
+            # print("P2:",p2)
+            # for pt in p2:
+            #     print("PT:",pt)
+            #     self.draw_point(canvas,pt[0],pt[1])
+            # print("P12:",p2.astype(int))
+            points = p2.flatten()
+            if len(points) == 0:
+                return
+            if len(points) == 2:
+                print(points)
+                self.draw_point(canvas,points[0],points[1])
+            else:
+                canvas.create_line(*points,fill=self.color,width=2)
 
-        canvas.create_line(*p2.flatten(),fill=self.color,width=2)
 
 class ChartPanel:
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+    _xrangeFn=None
+    def getYRange(self):
+        return (min([t.yRange[0] for id,t in self.data.items() if id not in self.hiddenTraces]),
+                max([t.yRange[1] for id,t in self.data.items() if id not in self.hiddenTraces]))
+    def getXRange(self):
+        if self._xrangeFn:
+            return self._xrangeFn()
+        else:
+            return (min([t.xRange[0] for id,t in self.data.items() if id not in self.hiddenTraces ]),
+                    max([t.xRange[1] for id,t in self.data.items() if id not in self.hiddenTraces]))
 
     def __init__(self,master,width,height,
                  keepPoints=300,
                  xAxisLabel="x",yAxisLabel="y",
                  margin=None,
-                 colors=None
+                 colors=None,
+                 bg="white"
                  ):
+        self._xrangeFn = lambda *a: (time.time() - 300, time.time())
         self.root=master
         self.hiddenTraces = set()
-        self.colors = colors or self.colors[:]
+        self.bg = bg
+        # self.colors = colors or self.colors[:]
         self.keepPoints = keepPoints
         self.xAxisLabel = xAxisLabel
         self.yAxisLabel = yAxisLabel
-        self.margin = margin or [35,10,5,25]
+        self.margin = margin or [35,15,5,5]
         if isinstance(self.margin,int):
             self.margin = [self.margin]*4
         if len(self.margin) == 1:
@@ -95,15 +140,21 @@ class ChartPanel:
         self.yRange = [float("inf"),float("-inf")]
         self.canvas = tk.Canvas(self.root,width=width,height=height)
         self.data = {}
+
     def hideTrace(self,trace_index):
         self.hiddenTraces.add(trace_index)
     def showTrace(self,trace_index):
         if trace_index in self.hiddenTraces:
             self.hiddenTraces.remove(trace_index)
-    def addTrace(self,initialPoints,color=None):
-        color = color or self.colors[len(self.data)]
+    def add_point(self,trace_pk,point,update=False):
+        self.data.setdefault(trace_pk,Trace(self,[],maxPoints=self.keepPoints)).add_point(*point)
+        if update == True:
+            self.update()
+    def add_trace(self,initialPoints,color=None,maxPoints=None):
+        maxPoints = maxPoints or self.keepPoints
+        # color = color or self.colors[len(self.data)]
         # print(self.data)
-        self.data[len(self.data)] = Trace(initialPoints[:],color)
+        self.data[len(self.data)] = Trace(self,initialPoints[:],color)
         # print(self.data,self.data[0].points)
     def update(self):
         t0 = time.time()
@@ -112,10 +163,13 @@ class ChartPanel:
     def _drawAxes(self,xOffset=0):
 
         # blit white background
-        self.canvas.create_rectangle(-1,-1,self.width+2,self.height+2,fill="#FFFCFC",outline=None)
+        self.canvas.create_rectangle(-1,-1,self.width+2,self.height+2,fill=self.bg,outline=None)
+        print("FILL:",self.bg)
         for trace in sorted(self.data.keys()):
             # print(self.data[trace],self.data[trace].points)
+
             if trace not in self.hiddenTraces:
+                print("DRAW:", trace, "POINTLEN:",len(self.data[trace].points))
                 self.data[trace].draw(self.canvas,[self.cwidth,self.cheight],[self.margin[0],self.margin[1]])
         # axis line y
         self.canvas.create_line(self.margin[0],self.margin[1],self.margin[0],self.margin[1]+self.cheight,self.cwidth+self.margin[0],self.margin[1]+self.cheight)
@@ -124,18 +178,20 @@ class ChartPanel:
         self._drawXTicks()
         self._drawYTicks()
     def _drawXTicks(self):
+
         # self.canvas.create_line(13,5,15,5)
         # self.canvas.create_line(13,self.cheight//2+5,15,self.cheight//2+5)
         # self.canvas.create_line(13,self.cheight+5,15,self.cheight+5)
         # self.canvas.create_line(self.cwidth//2+15,self.cheight+5,self.cwidth//2+15,self.cheight+8)
         # self.canvas.create_line(self.cwidth+15,self.cheight+5,self.cwidth+15,self.cheight+5)
+        return
         start = int(time.time())-300
         start2 = start + 60 - start%60
         ticks = numpy.arange(start,time.time(),60)
         m,s = divmod(ticks,60)
         m = m % 60
         self.xRange = min([t.xRange[0] for t in self.data.values()]),max([t.xRange[1] for t in self.data.values()])
-
+        print("XRANGE:",self.xRange)
         # tick_labels = numpy.array2string(m,formatter={'float_kind':"{0:02.0f}:00".format})
         tick_values = m
         xr = self.xRange[1]- self.xRange[0]
@@ -149,16 +205,17 @@ class ChartPanel:
             self.canvas.create_line(xpos,ypos,xpos,ypos+5)
         # print("TICKS:",ticks,)
     def _drawYTicks(self):
-        self.yRange = min([t.yRange[0] for t in self.data.values()]), max([t.yRange[1] for t in self.data.values()])
-        yr = self.yRange[1] - self.yRange[0]
-        ys = numpy.linspace(self.yRange[0],self.yRange[1],3)
+        yRange = self.getYRange()
+        yr = yRange[1] - yRange[0]
+        ys = numpy.linspace(yRange[0],yRange[1],3)
+
         # print(ys)
         for y in ys:
-            ratio = (y-self.yRange[0])/yr
+            ratio = (y-yRange[0])/yr
             ypos = self.cheight - ratio*self.cheight + self.margin[1]
             xpos = self.margin[0]
             self.canvas.create_line(xpos,ypos,xpos - 5,ypos)
-            self.canvas.create_text([xpos-6,ypos],text="%0.0f"%y,anchor="e")
+            self.canvas.create_text([xpos-6,ypos],text="%0.1f"%y,anchor="e")
     def get_trace(self,trace_pk=0):
         return self.data[trace_pk]
     def set_points(self,tracePk,points):
@@ -179,12 +236,15 @@ if __name__ == "__main__":
     h,m = divmod(seconds_in_day,60)
     m,s = divmod(m,60)
     # print(h,m,s)
-    cp.hideTrace(0)
-    cp.addTrace(zip(x,y))
-    cp.addTrace(zip(x,y2))
+    # cp.hideTrace(0)
+    data = list(zip(x[-8:],[1,2,float("nan"),float("nan"),4,1,float("nan"),2]))
+    print(data)
+    cp.add_trace(data)
+    # cp.add_trace(zip(x,y2))
     cp.update()
     cp.pack()
     def addPoint():
+        return
         if numpy.random.random() > 0.9:
             if cp.hiddenTraces:
                 cp.hiddenTraces.pop()

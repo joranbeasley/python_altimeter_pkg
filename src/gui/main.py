@@ -11,6 +11,7 @@ import random
 import time
 import traceback
 
+import numpy
 import redis
 from matplotlib import animation
 
@@ -30,6 +31,7 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(RotatingFileHandler("/logfiles/main_gui.log",maxBytes=500000,backupCount=1))
 logger.addHandler(logging.StreamHandler())
 r = redis.StrictRedis(host='localhost', port=6379, db=0)
+from ChartPanel import ChartPanel
 
 class StatusLight:
     def __init__(self,master,label,state=0,colors=["red","green"]):
@@ -98,6 +100,12 @@ class Layout:
         self.main_label.place(x=20,y=35)
         def toggleTrace2():
             self._trace2 = not self._trace2
+            if self._trace2:
+                self.chart.showTrace(1)
+                self.chart.update()
+            else:
+                self.chart.hideTrace(1)
+                self.chart.update()
         self.sealevel = tk.Button(self.root, text="---.-\nmeters sealevel",
                                     command=toggleTrace2,
                                     anchor="w",
@@ -183,68 +191,23 @@ class Layout:
         value_b = value2 if value2 == "---.-" else "%0.1f"%vGPS
 
         self.main_label.configure(text="%0.1f"%value)
-        self.plot_records.append([time.time(),value])
-        self.plot_records2.append([time.time(),value2])
-        self.plot_records = self.plot_records[-100:]
-        self.plot_records2 = self.plot_records2[-100:]
+        self.chart.add_point(0,[time.time(),value])
+        self.chart.add_point(1,[time.time(),value2],update=True)
+        #self.plot_records = self.plot_records[-100:]
+        #self.plot_records2 = self.plot_records2[-100:]
         self.sealevel.config(text="%0.1f \nmeters sealevel"%(value2))
 
 
-    def update_chart_easy(self):
-        t0 = time.time()
-        times, alt = zip(*self.plot_records)
-        self.axes.clear()
-        self.axes.plot(times,alt)
-        if self._trace2:
-            times, gps = zip(*self.plot_records2)
-            self.axes.plot(times,gps)
-        self._fixAxes()
-        print "Took %0.2fs to replot!"%(time.time()-t0)
-    def update_chart(self):
-        #delete old data
-        t0 = time.time()
-        self.axes.draw_artist(self.axes.patch)
-        # set the new data, could be multiple lines too
-        times, alt = zip(*self.plot_records)
-        self.line1.set_data(times, alt)
-        self.axes.draw_artist(self.line1)
-        if self._trace2:
-            # set line2 data
-            times, gps = zip(*self.plot_records2)
-            self.line2.set_data(times,gps)
-            self.axes.draw_artist(self.line2)
-        else:
-            # set line2 data
-            self.line2.set_data([],[])
-            self.axes.draw_artist(self.line2)
-
-        # redraw the axis (and re-limit them)
-        self.axes.relim()
-        self.axes.autoscale_view()
-        self.fig.canvas.draw()
-        self.th = None
-        logger.info("Took %0.2fs to update the chart(seperate thread)"%(time.time()-t0))
-        # update figure
-#        self.fig.canvas.flush_events()
-
-
-        """        print("B4Plot",time.time()-t0)
-        t1 = time.time()
-        self.axes.clear()
-        print("CA",time.time()-t1)
-        t2 = time.time()
-        times, alt = zip(*self.plot_records)
-        self.axes.plot(times,alt)
-        print("P",time.time()-t2)
-        if self._trace2:
-            t3 = time.time()
-            times, gps = zip(*self.plot_records2)
-            self.axes.plot(times,gps)
-            print("P2",time.time()-t3)
-        t4 = time.time()
-        self._fixAxes()
-        print("FIX AX:",time.time()-t4)"""
     def _createFigure(self):
+        self.chart = ChartPanel(self.root,320,80)
+        self.chart.hideTrace(1)
+        points = []
+        # self.chart.add_trace(points)
+        # self.chart.update()
+        self.chart.place(y=99)
+        counter = [1]
+        return self.chart
+    def _createFigure_old(self):
         t0 = time.time()
         self.fig = figure
         self.fig.patch.set_facecolor("white")
@@ -261,6 +224,9 @@ class Layout:
         self._fixAxes()
         logger.info("Create Figure Took %0.2fs"%(time.time()-t0))
     def _fixAxes(self):
+        traceback.print_stack()
+        print("DONT CALL FIXAXES NOW!!!")
+    def _fixAxes_old(self):
         self.axes.yaxis.set_major_locator(self.ticks1)
         self.axes.xaxis.set_major_locator(self.ticks2)
         self.axes.xaxis.set_major_formatter(self.time_axis_formatter)
@@ -395,6 +361,6 @@ class MyApp:
 
 if __name__ == "__main__":
     app = MyApp()
-    ani = animation.FuncAnimation(figure, app.layout.update_chart_tick, interval=1000)
+    # ani = animation.FuncAnimation(figure, app.layout.update_chart_tick, interval=1000)
     app.mainloop()
 
