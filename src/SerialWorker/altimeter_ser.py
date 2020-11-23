@@ -60,6 +60,7 @@ class AltimeterSer:
         try:
             result = {'altitude_ground':self._unpackRawPayload(raw),'speed_ground':float("nan"),"snr_ground":float("nan")}
             log.debug("RESULT FROM SmartMicro: %r"%result)
+            return result
         except struct.error as e:
             log.exception("Unable to unpack malformed payload: %r"%(raw,))
             return {'altitude_ground':float('nan'),'speed_ground':float("nan"),"snr_ground":float("nan")}
