@@ -54,7 +54,7 @@ class AltimeterUradSer:
 
     def __do_load_user_config_variables(self,fpath="/boot/urad_config.txt"):
 
-        data = {"Ns": 200, "mode": 2, "BW": 240, "f0": 5, "Ntar": 3, "Rmax": 100, "MTI": 0, "Mth": 0, "Alpha": 10,
+        data = {"Ns": 200, "mode": 2, "BW": 120, "f0": 23, "Ntar": 1, "Rmax": 100, "MTI": 0, "Mth": 0, "Alpha": 10,
                 "distance_true": True,
                 "velocity_true": True, "SNR_true": True, "I_true": False, "Q_true": False, "movement_true": False}
         try:
@@ -75,7 +75,7 @@ class AltimeterUradSer:
         self.cfg = self.__do_load_user_config_variables("/boot/urad_config.txt")
 
         self.cfg.update({k:v for k,v in newCfg.items() if k in self.cfg})
-        print("RECONFIG:",self.cfg)
+        print("RECONFIG alt_urad.URADSerial:",self.cfg)
         URAD.turnOFF(self.ser)
         URAD.loadConfiguration(self.ser,**self.cfg)
         URAD.turnON(self.ser)

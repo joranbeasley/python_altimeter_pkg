@@ -59,7 +59,7 @@ class SerialAltimeterWorker:
                     log.warn("Killing Altimeter (READING LOOP) Raise StopIteration")
                     raise StopIteration("Kill")
                 elif msg['channel'] == "reconfigure_urad":
-                    print("RECONFIGURE URAD IF POSSIBLE!", conn)
+                    mainlog.info("RECONFIGURE URAD IF POSSIBLE!", msg['data'])
                     try:
                         cfg = json.loads(msg['data'])
                     except:
@@ -67,8 +67,8 @@ class SerialAltimeterWorker:
                     try:
                         conn.reconfigure(cfg)
                     except:
-                        print("Could not use config:",cfg)
-                        traceback.print_exc()
+                        mainlog.exception("Could not use config: %r"%(cfg,))
+
             try:
                 reading = self.get_reading(conn)
             except:
