@@ -156,7 +156,7 @@ class ChartPanel:
     def update(self):
         t0 = time.time()
         self._drawAxes()
-        print("Took %0.2fs to redraw chart"%(time.time()-t0))
+        # print("Took %0.2fs to redraw chart"%(time.time()-t0))
     def _drawAxes(self,xOffset=0):
         self.canvas.delete(tk.ALL)
         # blit white background
@@ -166,7 +166,7 @@ class ChartPanel:
             # print(self.data[trace],self.data[trace].points)
 
             if trace not in self.hiddenTraces:
-                print("DRAW:", trace, "POINTLEN:",len(self.data[trace].points))
+                # print("DRAW:", trace, "POINTLEN:",len(self.data[trace].points))
                 self.data[trace].draw(self.canvas,[self.cwidth,self.cheight],[self.margin[0],self.margin[1]])
         # axis line y
         self.canvas.create_line(self.margin[0],self.margin[1],self.margin[0],self.margin[1]+self.cheight,self.cwidth+self.margin[0],self.margin[1]+self.cheight)

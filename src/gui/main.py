@@ -220,7 +220,8 @@ class Layout:
     def update_tick(self):
         t0 = time.time()
         data = self.get_data_from_redis()
-        logger.warn("Took %0.2fs to fetch current data"%(time.time()-t0))
+        # logger.warn("Took %0.2fs to fetch current data"%(time.time()-t0))
+        t1 = time.time()
         header_text = self.state['recording']
         header_color = {
             'NOT RECORDING':"black",
@@ -274,10 +275,10 @@ class Layout:
         csv_logging =  self.logging
         if csv_logging:
             csv_logging.writerow(data['data'])
-        t1 = time.time()
+        t2 = time.time()
         self.addValue(value1,value2)
-        logger.info("Took %0.2fs to Add the Value"%(time.time()-t1,))
-        logger.info("Took %0.2fs to complete Tick"%(time.time()-t0,))
+        # logger.info("Took %0.2fs to Add the Value"%(time.time()-t1,))
+        logger.info("Took %0.2fs to complete Tick(Query Redis=%0.2fs,UI=%s,AddValue=%0.2fs)"%(time.time()-t0,t1-t0,t2-t2,time.time()-t2))
 
     def updateHeader(self,bg,fg,text):
         self.header.update(bg,fg,text)
@@ -309,6 +310,7 @@ class MyApp:
         self.root.bind("<KeyRelease>",self.onKeyDown)
         update_ui()
         self.root.after(1000, show_me)
+        print("Bound Key Release")
     def onKeyDown(self,evt):
         if evt.char == "U":
             cmd = "%s %s"%(sys.executable,os.path.join(os.path.dirname(__file__),"urad_configure.py"))
