@@ -21,19 +21,22 @@ class AltimeterSer:
         if port is not None:
             if port.startswith("SPOOF:"):
                 self.conn = io.BytesIO(port[6:])
+                log.warning("Instanciated fake spoofed altimeter data")
             else:
                 try:
                     self.conn = serial.Serial(port,115200,timeout=1)
                 except:
                     log.exception("Failed to open com! %r"%port)
                     raise
+                else:
+                    log.warn("\n\nOpened (SM)Altimeter Port: %r\n\n"%self.conn)
         else:
             log.warn("You must set inst.conn before calling get_reading!!!")
 
     def _getRawPayload(self):
         start_token = "\xca\xcb\xcc\xcd"
         end_token = "\xea\xeb\xec\xed"
-        return read_frame(self.conn,start_token,end_token)
+        return read_frame(self.conn,start_token,end_token,log=log)
 
     @staticmethod
     def _unpackRawPayload(rawBytesPayload):
@@ -55,7 +58,8 @@ class AltimeterSer:
             log.exception("Error parsing Payload")
             return {'altitude_ground': float('nan'),'speed_ground':float("nan"),"snr_ground":float("nan")}
         try:
-            return {'altitude_ground':self._unpackRawPayload(raw),'speed_ground':float("nan"),"snr_ground":float("nan")}
+            result = {'altitude_ground':self._unpackRawPayload(raw),'speed_ground':float("nan"),"snr_ground":float("nan")}
+            log.debug("RESULT FROM SmartMicro: %r"%result)
         except struct.error as e:
             log.exception("Unable to unpack malformed payload: %r"%(raw,))
             return {'altitude_ground':float('nan'),'speed_ground':float("nan"),"snr_ground":float("nan")}

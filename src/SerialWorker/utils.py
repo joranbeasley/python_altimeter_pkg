@@ -31,7 +31,7 @@ def getNBITS(n,msg):
     struct_use = struct_map[int(ceil(n/8.0))]
     print("S:",struct_use,msg)
     return struct.unpack_from(struct_use, msg)[0] & (2**n-1)
-def read_frame(c,start_token,end_token,size=None):
+def read_frame(c,start_token,end_token,size=None,log=None):
     """
     return the bytes between the start
     >>> import io
@@ -47,8 +47,12 @@ def read_frame(c,start_token,end_token,size=None):
     :param end_token:
     :return:
     """
-    msg = read_until(c,start_token,size,exceptOnSize=True)
-    return read_until(c,end_token,size,exceptOnSize=True)[:-len(end_token)]
+    msg0 = read_until(c,start_token,size,exceptOnSize=True)
+    msg1 = read_until(c,end_token,size,exceptOnSize=True)[:-len(end_token)]
+    if(log):
+        log.debug("Read JUNK: %r"%msg0)
+        log.debug("RAW FRAME: %r"%msg1)
+    return msg1
 
 def read_until(conn, terminator='\n', size=None,exceptOnSize=False):
     """
