@@ -232,7 +232,7 @@ def detection(ser):
                                                                                             two_blocks_1 + two_blocks_2 + two_blocks_3 + i) * 3 + 2]
 
                 else:
-                    return -2, [], []
+                    return -2, [], [],rawBytes
 
             if (get_Q):
                 bufferQbytes = ser.read(total_bytes)
@@ -271,13 +271,13 @@ def detection(ser):
                                                                                             two_blocks_1 + two_blocks_2 + two_blocks_3 + i) * 3 + 2]
 
                 else:
-                    return -2, [], []
+                    return -2, [], [],rawBytes
 
             return 0, [NtarDetected, distance, velocity, SNR, movement], [I, Q],rawBytes
         else:
-            return -1, [], []
+            return -1, [], [],rawBytes
     except:
-        return -2, [], []
+        return -2, [], [],rawBytes
 
 
 def turnON(ser):

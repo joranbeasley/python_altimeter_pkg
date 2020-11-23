@@ -1,4 +1,7 @@
+import json
 import sys
+import redis
+r = redis.StrictRedis(host='localhost', port=6379, db=0)
 try:
     import tkinter as tk
 except:
@@ -105,18 +108,31 @@ class URADForm:
             print("CHANGED:f0")
             maxBW = 245 - int(self.entry2.value)
             self.entry3.setRange(50,maxBW)
+
         def dist_change():
             BW = float(self.entry3.value)
             Ns = int(self.entry4.value)
             txt = "MAX THEORETICAL DISTANCE\nDmax=75*(Ns/BW) = %0.3fs"%(75.0*(Ns/BW))
             self.lbl_dist.configure(text=txt)
         def MAKECONFIG():
-            print("CREATE CONFIG")
-        def TESTCONFIG():
-            print("TEST CONFIG")
-     
+            data = get_data_dict()
+            print("CREATE CONFIG",data)
 
-        self.entry1 = LabeledMenu(master,"mode",list("1234"),on_change=ttt)
+        def TESTCONFIG():
+            data = get_data_dict()
+            print("TEST CONFIG",data)
+            r.publish("reconfigure_urad",json.dumps(data))
+
+        def get_data_dict():
+            return {
+                "mode":int(self.entry1.value),
+                "f0":int(self.entry2.value),
+                "BW":int(self.entry3.value),
+                "Ns":int(self.entry4.value),
+                "Alpha":int(self.entry4.value),
+                    }
+
+        self.entry1 = LabeledMenu(master,"mode",list("234"),on_change=ttt)
         self.entry1.grid(row=0,column=0,columnspan=3)
         self.lbl_mode = tk.Label(master,text="Speed")
         self.lbl_mode.grid(row=0,column=3,columnspan=3)

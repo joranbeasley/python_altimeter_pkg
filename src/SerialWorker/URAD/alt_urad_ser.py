@@ -15,16 +15,33 @@ log = FakeLog()
 
 
 class AltimeterUradSer:
+    log_setup = {'filename':"/logfiles/urad.log",'maxBytes':50000,'backupCount':1}
+    def setupLogging(self):
+        log = logging.getLogger("urad_logger")
+        log.setLevel(logging.DEBUG)
+        handleF = RotatingFileHandler(**self.log_setup)
+        handleF.setFormatter(logging.Formatter("%(asctime)s:: %(msg)s"))
+        log.addHandler(handleF)
+        handleS = logging.StreamHandler()
+        handleS.setFormatter(logging.Formatter("%(name)s:: %(msg)s"))
+        log.addHandler(handleF)
     def __init__(self,port="/dev/urad",cfg=None):
         global log
         cfg = cfg or {}
-        log = logging.getLogger("urad_logger")
-        log.setLevel(logging.DEBUG)
-        log.addHandler(RotatingFileHandler("/logfiles/urad_log.txt", maxBytes=50000, backupCount=1))
-        log.addHandler(logging.StreamHandler())
-        self.ser = serial.Serial(port,1e6)
+
+        try:
+            self.ser = serial.Serial(port,1e6)
+        except:
+            log.exception("Failed to open com(urad)! %r"%port)
+            raise
+        else:
+            log.warn("URAD Serial Port Open: %r"%self.ser)
         self.cfg = {}
         self.__do_configure(cfg)
+    def close(self):
+        URAD.turnOFF(self.ser)
+        self.ser.close()
+
     def get_reading(self):
         ret_code,results,raw_results,raw_bytes = URAD.detection(self.ser)
         # log.debug("RAW RESULT: %r"%(raw_bytes,))

@@ -16,13 +16,17 @@ class AltimeterSer:
         global log
         log = logging.getLogger("altimeter_errors")
         log.setLevel(logging.DEBUG)
-        log.addHandler(RotatingFileHandler("/logfiles/altimeter_errors.txt", backupCount=1, maxBytes=25000))
+        log.addHandler(RotatingFileHandler("/logfiles/smartmicro.log", backupCount=1, maxBytes=25000))
         log.addHandler(StreamHandler(sys.stdout))
         if port is not None:
             if port.startswith("SPOOF:"):
                 self.conn = io.BytesIO(port[6:])
             else:
-                self.conn = serial.Serial(port,115200,timeout=1)
+                try:
+                    self.conn = serial.Serial(port,115200,timeout=1)
+                except:
+                    log.exception("Failed to open com! %r"%port)
+                    raise
         else:
             log.warn("You must set inst.conn before calling get_reading!!!")
 

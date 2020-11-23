@@ -1,9 +1,12 @@
 import glob
+import logging
 import re
 import threading #multiprocessing
 import os
 import shutil
 import time
+from logging.handlers import RotatingFileHandler
+
 import redis
 import json
 import serial
@@ -12,17 +15,22 @@ import atexit
 import signal
 import sys
 import argparse
+from utils import initHandlers
 p = argparse.ArgumentParser()
+mainlog = None
+
 def signal_handler(sig, frame):
-    print('You pressed Ctrl+C!')
     SerialWorker.r.publish("kill_t1","1")
     SerialWorker.r.publish("kill_t2","1")
-    print("NOTIFIED THREADS!!!")
+    mainlog.warn('RECIEVED KILL SIGNAL!!!')
+    mainlog.debug("NOTIFIED THREADS TO TERMINATE!!! EXITING NOW!")
     sys.exit(0)
+
 signal.signal(signal.SIGINT, signal_handler)
 # print('Press Ctrl+C')
 # signal.pause()
 class SerialAltimeterWorker:
+
     def __init__(self,altimeter_port="/dev/altimeter",urad_port="/dev/urad"):
         print("INIT SERIAL ALTIMETER WORKER!@#")
         self.altimeter_port = altimeter_port
@@ -41,13 +49,15 @@ class SerialAltimeterWorker:
 #             reading = self.get_reading(None)
 #             GPSWorker.update_redis_reading(reading)
 #             time.sleep(0.1)
-    def read_forever(self,conn,pub):
+    def read_forever(self,conn,pub,log=None):
+        log=log or mainlog
         while True:
             msg = pub.get_message(ignore_subscribe_messages=1)  # get_message(ignore_subscribe_message=True)
             if msg:
+                log.debug("ALTIMETER RECIEVED PUBSUB (ReadLoop): {channel} : {data}".format(**msg))
                 if msg['channel'] == "kill_t1":
-                    print("\n\nKILLING LOOP ALTIMETER OUTTER!!!\n\n")
-                    sys.exit(0)
+                    log.warn("Killing Altimeter (READING LOOP) Raise StopIteration")
+                    raise StopIteration("Kill")
                 elif msg['channel'] == "reconfigure_urad":
                     print("RECONFIGURE URAD IF POSSIBLE!", conn)
                     try:
@@ -62,49 +72,42 @@ class SerialAltimeterWorker:
             try:
                 reading = self.get_reading(conn)
             except:
-                print("ERROR GETTING READING!")
+                log.exception("ERROR GETTING READING!")
                 reading = None
-            print("GOT ALTIMETER READING!@#", reading)
+            # log.debug("GOT ALTIMETER READING: %r"%(reading,))
             if not reading:
-                print("CLOSED!!!")
+                log.warn("Closing Altimeter Port (no reading...)")
                 conn.close()
                 time.sleep(0.1)
                 break
             GPSWorker.update_redis_reading(reading)
             time.sleep(0.5)
     def get_smart_micro(self):
-        from altimeter_ser import AltimeterSer
+        from altimeter_ser import AltimeterSer,log
         conn = AltimeterSer(self.altimeter_port)
         time.sleep(0.1)
-        print("OPENED smartmicro ALTIMETER!!!")
+        # log.warn("OPENED smartmicro ALTIMETER!!!")
         return conn
     def get_urad(self,cfg=None):
         from URAD.alt_urad_ser import AltimeterUradSer
         conn = AltimeterUradSer(self.urad_port,cfg)
         time.sleep(0.1)
-        print("OPENED smartmicro ALTIMETER!!!")
         return conn
+
+
+
     def get_altimeter_instance(self,cfg):
-        if os.path.exists("/dev/altimeter"):
-            print("I think there is a smartmicro attached, attempting to connect")
+        if SerialWorker.inst.check_interface('alt'):
+            mainlog.info("I think there is a smartmicro attached, attempting to connect")
             return self.get_smart_micro()
-        elif os.path.exists("/dev/urad"):
-            print("I think i have a urad distance unit attached")
+        elif SerialWorker.inst.check_interface('urad'):
+            mainlog.info("I think i have a urad distance unit attached... attempting connection")
             return self.get_urad(cfg)
-        elif os.name == "nt":
-            try:
-                print("GET URAD?",cfg)
-                return self.get_urad(cfg)
-            except:
-                try:
-                    return self.get_smart_micro()
-                except:
-                    print("Could not get windows ports ... mark as no altimeter")
-                SerialWorker.addDevices(altimeter="disconnected")
         raise AssertionError("Unable to find altimeter instance! LSUSB RESULTS BELOW\n%s"%(os.popen("lsusb").read()))
 
     def main_loop_real(self):
-
+        log_alt = logging.getLogger("altimeter_errors")
+        log_urad = logging.getLogger("urad_logger")
         pub = SerialWorker.r.pubsub()
         pub.subscribe("kill_t1","reconfigure_urad")
         conn = None
@@ -112,11 +115,11 @@ class SerialAltimeterWorker:
         while True:
             msg = pub.get_message(ignore_subscribe_messages=1) #get_message(ignore_subscribe_message=True)
             if msg:
-               print("RECV MSG(ALTIMETER): {channel} : {data}".format(**msg))
+               log_urad.debug("RECV PUBSUB MSG(ALTIMETER): {channel} : {data}".format(**msg))
 
                if msg['channel'] == "kill_t1":
-                   print("EXIT NOW!!!")
-                   sys.exit(0)
+                   mainlog.warn("KILL SIGNAL RECEIVED (AltimeterWorker) raise StopIteration")
+                   exit(0)
                elif msg['channel'] == "reconfigure_urad":
                    print("RECONFIGURE URAD IF POSSIBLE!", conn)
                    try:
@@ -174,20 +177,21 @@ class GPSWorker:
             reading = self.get_reading_fake(None)
             GPSWorker.update_redis_reading(reading)
             time.sleep(0.1)
-    def read_forever(self,conn,pub):
+    def read_forever(self,conn,pub,log):
         while True:
             msg = pub.get_message(ignore_subscribe_messages=1) #get_message(ignore_subscribe_message=True)
             if msg:
-               print("KILL GPS INNER!!")
+               log.debug("GOT PUBSUB MSG: %s : %r"%(msg['channel'],msg['data']))
                if msg['channel'] == "kill_t2":
-                   sys.exit(0)
-
+                   log.debug("raise StopIteration")
+                   raise StopIteration("Kill Message")
 
             try:
                 reading = self.get_reading(conn)
             except:
                 reading = None
             if not reading:
+                log.warn("Unable to get reading... closing for now")
                 conn.close()
                 time.sleep(0.1)
                 return
@@ -208,11 +212,12 @@ class GPSWorker:
         # log.warn("START LOOP")
         pub = SerialWorker.r.pubsub()
         pub.subscribe("kill_t2")
+        killed = False
         while True:
             msg = pub.get_message(ignore_subscribe_messages=1) #get_message(ignore_subscribe_message=True)
-            if msg:
-               print("KILL GPS OUTTER!!!")
-               if msg['channel'] == "kill_t2":
+            if killed or msg:
+               log.warn("KILL SIGNAL RECIEVED IN OUTTER (GPS) loop")
+               if killed or msg['channel'] == "kill_t2":
                    sys.exit(0)
             try:
                 devices = json.loads(SerialWorker.r.get('devices'))
@@ -229,16 +234,21 @@ class GPSWorker:
                     # logging.getLogger("gps_raw").exception("CONNECTION ERROR!")
                     time.sleep(0.2)
                     # log.exception("Could not open PORT")
-                    if os.name == "nt":
-                        devices.update({'gps':'disconnected'})
-                        # print("SET DEVICES:",devices)
-                        SerialWorker.r.set('devices',json.dumps(devices))
+                    # if os.name == "nt":
+                    log.warn("Unable to connect to GPS: %r"%self.port)
+                    devices.update({'gps':'disconnected'})
+                    SerialWorker.r.set('devices',json.dumps(devices))
                 else:
                     # if devices['gps'] == "disconnected":
                     #     devices.update({'gps': 'connected'})
                     #     # print("SET DEVICES:", devices)
                     #     SerialWorker.r.set('devices', json.dumps(devices))
-                    self.read_forever(conn,pub)
+                    try:
+                        self.read_forever(conn,pub,log)
+                    except StopIteration:
+                        log.warn("RETURN FROM LOOP")
+                        return
+
             self.update_redis_reading({"altitude_sealevel":"","num_satellites":"-1","satellites_signal":"-1"})
             time.sleep(1)
 
@@ -246,7 +256,11 @@ class GPSWorker:
     def update_redis_reading(reading):
         # print("UPDATE:",reading)
         data = SerialWorker.get_current_reading() or {}
+        if all(reading[key] == data.get(key,None) for key in reading):
+            mainlog.debug("No Update To Reading %r"%(reading))
+            return
         data.update(reading)
+        mainlog.debug("REDIS READING UPD: %r"%data)
         SerialWorker.r.set("reading_data",json.dumps(data))
 def start_gps(cfg):
     GPSWorker.start(cfg['gps'])
@@ -255,19 +269,33 @@ def start_altimeter(cfg):
 
 class SerialWorker:
     r = redis.StrictRedis(host='localhost', port=6379, db=0)
+    inst = None
+    log_cfg = {"filename":"/logfiles/main-serial-worker.log",
+                    "maxBytes":50000,"backupCount":1}
+    def init_logging(self):
+        global mainlog
+        mainlog = logging.getLogger("ser-mon")
+        mainlog.setLevel(logging.DEBUG)
+        self.handle1, self.handle2 = initHandlers(mainlog, **self.log_cfg)
+
     def __init__(self,port_gps="/dev/gps",port_alt="/dev/altimeter",port_urad="/dev/urad",usb_glob="/dev/sd*"):
         # construct python-redis interface
+        self.init_logging()
+        if SerialWorker.inst:
+            raise RuntimeError("Only one Serial Worker can exist at a time!!!!")
+        SerialWorker.inst = self
         self.p = self.r.pubsub()
-        self.ports = {'gps':port_gps,'alt':port_alt,'urad':port_urad}
-        print("USE CFG:",self.ports)
-        print(self.r.config_set("appendonly","no"))
-        print(self.r.config_set("save",""))
+        self.ports = {'gps':port_gps,'alt':port_alt,'urad':port_urad,"usb":usb_glob}
+        mainlog.info("USE CFG:",self.ports)
+        self.r.config_set("appendonly","no")
+        self.r.config_set("save","")
 
         self.p.subscribe("kill","download")
         # create and pass data to redis
         self.set_current_reading({})
         self.r.set("gps","disconnected")
         self.r.set('altimeter',"disconnected")
+        mainlog.info("Start MainLoop")
         self.main_loop()
     def download_logs(self,copyTo="/mnt/USB"):
         from gps_ser import log
@@ -325,39 +353,72 @@ class SerialWorker:
             time.sleep(0.5)
             # print("DATA:",self.data)
         print("Exiting Serial Worker ... should automatically restart if configured")
+
+    def usb_check(self):
+        pass
+    @staticmethod
+    def _check_port_win(port):
+        ser = serial.Serial()
+        ser.port = port
+        try:
+            ser.open()
+        except serial.SerialException as e:
+            if os.name == "nt" and "Access is denied." in str(e):
+                return True
+            # traceback.print_exc()
+            return False
+        else:
+            return True
+        finally:
+            ser.close()
+            time.sleep(5)
+    @staticmethod
+    def _check_port_unix(port):
+        return len(glob.glob(port)) > 0
+    def check_interface(self, interface):
+        if interface.lower() not in ["alt", "urad", "gps","usb"]:
+            raise TypeError('interface must be one of ["alt","urad","gps","usb"]')
+        if interface == "usb":
+            return self.usb_check()
+        portName = self.ports[interface.lower()]
+        if portName.startswith("COM"): # == "nt":
+            return self._check_port_win(portName)
+        return self._check_port_unix(portName)
+
+
     def update_device_states(self):
         self.r.set('download_count', len(glob.glob("/logfiles/*.csv")))
-        if os.name == "nt":
-            return
-        try:
-            states = json.loads(self.r.get("devices"))
-        except:
-            states = {'gps':'disconnected','altimeter':'disconnected','usb':'disconnected'}
+        states = {'gps':'disconnected','altimeter':'disconnected','usb':'disconnected'}
         if states.get('gps','') != 'connected':
-            if os.path.exists('/dev/gps'):
+            if self.check_interface('gps'):
                 states.update({'gps':'connected'})
-                self.r.set('devices',json.dumps(states))
+                # self.r.set('devices',json.dumps(states))
         else:
-            if not os.path.exists('/dev/gps'):
+            if not self.check_interface('gps'):
                 states.update({'gps':'disconnected'})
-                self.r.set('devices', json.dumps(states))
+                # self.r.set('devices', json.dumps(states))
         if states.get('altimeter','') != 'connected':
-            if os.path.exists("/dev/altimeter") or os.path.exists('/dev/urad'):
+            if self.check_interface('alt') or self.check_interface('urad'):
                 states.update({'altimeter':'connected'})
-                self.r.set('devices',json.dumps(states))
         else:
-            if not os.path.exists('/dev/altimeter') and not os.path.exists('/dev/urad'):
+            if not self.check_interface('alt') and not self.check_interface('urad'):
                 states.update({'altimeter':'disconnected'})
-                self.r.set('devices',json.dumps(states))
         if states.get('usb','') != "connected":
-            if len(glob.glob("/dev/sd*")) > 0:
+            if self.check_interface("usb"):
                 states.update({'usb':'connected'})
-                self.r.set('devices',json.dumps(states))
         else:
-            if len(glob.glob("/dev/sd*")) < 1:
+            if not self.check_interface('usb'):
                 states.update({'usb': 'disconnected'})
-                self.r.set('devices',json.dumps(states))
-        print("DEVICE STATES UPDATED:",states)
+        try:
+            data = json.loads(self.r.get("devices"))
+        except:
+            data = {}
+        if states != data:
+            data.update(states)
+            mainlog.debug("Update Devices:",states)
+            self.r.set("devices",json.dumps(states))
+        else:
+            mainlog.debug("skip update... same state")
 
     @staticmethod
     def addDevices(altimeter=None,gps=None,usb=None):

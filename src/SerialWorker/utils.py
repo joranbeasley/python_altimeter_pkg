@@ -1,7 +1,20 @@
 import struct
+from logging.handlers import RotatingFileHandler
 
 import serial
 from math import ceil
+import logging
+ffmt = logging.Formatter("%(asctime)s :: %(message)s")
+sfmt = logging.Formatter("%(name)s :: %(message)s")
+def initHandlers(logger,filename,maxBytes=50000,backupCount=1):
+    # sh = logging.StreamHandler()
+    fh = RotatingFileHandler(filename,maxBytes=maxBytes,backupCount=backupCount)
+    # sh.setFormatter(sfmt)
+    fh.setFormatter(ffmt)
+    # logger.addHandler(sh)
+    logger.addHandler(fh)
+    sh = None
+    return sh,fh
 def getNBITS(n,msg):
     '''
 
