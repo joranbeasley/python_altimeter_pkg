@@ -27,6 +27,7 @@ cat SYSTEM/etc/fstab |sudo tee -a /etc/fstab
 cat /etc/fstab
 info CONFIG "copy udev rules"
 sudo cp -rf SYSTEM/etc/udev/* /etc/udev/
+sudo cp -rf SYSTEM/boot/urad_config.txt /boot/urad_config.txt
 info CONFIG "copy systemd services"
 sudo cp -rf SYSTEM/etc/systemd/* /etc/systemd/
 sudo systemctl enable ser-mon
