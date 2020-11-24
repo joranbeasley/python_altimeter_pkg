@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo Running preinst...
+
+echo Setting up needed file structure... this may take a very long time
+cd /home/pi/python_altimeter_pkg/installer_scripts
+sudo bash install_xorg.sh

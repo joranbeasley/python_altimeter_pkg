@@ -1,0 +1,6 @@
+#!/bin/sh
+
+echo Running preinst...
+
+echo Setting up needed file structure...
+cd /home/pi/

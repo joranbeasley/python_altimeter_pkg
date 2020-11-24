@@ -40,6 +40,7 @@ wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/m
 chmod +x adafruit-pitft-setup.sh
 time sudo apt-get -y install lightdm
 info SUCCESS "installed lightdm" #loginmanager
+
 sudo ./adafruit-pitft-setup.sh -c1 -r1 -m2
 sudo sed -i "s/autologin-user=root/autologin-user=pi/" /etc/lightdm/lightdm.conf
 echo "REBOOT NOW!!!!"

@@ -1,0 +1,10 @@
+Package: PACKAGE
+Version: VERSION
+Architecture: ARCHITECTURE
+Maintainer: Joran Beasley <joranbeasley@gmail.com>
+Installed-Size: INSTALLEDSIZE
+Provides: python_altimeter_pkg
+Section: python
+Priority: optional
+Description: Python Altimeter Package
+ Joran Beasley
