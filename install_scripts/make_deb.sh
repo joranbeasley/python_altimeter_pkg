@@ -42,4 +42,4 @@ sed -i "s/INSTALLEDSIZE/$INSTALLEDSIZE/g" python_altimeter_pkg/DEBIAN/control
 sed -i "s/ARCHITECTURE/$ARCHITECTURE/g" python_altimeter_pkg/DEBIAN/control
 sed -i "s/PACKAGE/$PACKAGE/g" python_altimeter_pkg/DEBIAN/control
 
-dpkg-deb -b target
+dpkg-deb -b $TARGET
