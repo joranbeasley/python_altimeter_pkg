@@ -291,9 +291,11 @@ class GPSWorker:
         if all(reading[key] == data.get(key,None) for key in reading):
             mainlog.debug("No Update To Reading %r"%(reading))
             return
-        data.update(reading)
-        mainlog.debug("REDIS READING UPD: %r"%data)
-        SerialWorker.r.set("reading_data",json.dumps(data))
+        else:
+            new_data = {reading[key] == data.get(key,None) for key in reading if reading[key] != data.get(key,None)}
+            data.update(reading)
+            mainlog.info("REDIS READING UPD: %r"%new_data)
+            SerialWorker.r.set("reading_data",json.dumps(data))
 def start_gps(cfg):
     GPSWorker.start(cfg['gps'])
 def start_altimeter(cfg):
