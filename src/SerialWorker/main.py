@@ -289,7 +289,7 @@ class GPSWorker:
         # print("UPDATE:",reading)
         data = SerialWorker.get_current_reading() or {}
         if all(reading[key] == data.get(key,None) for key in reading):
-            mainlog.debug("No Update To Reading %r"%(reading))
+            mainlog.debug(">No Update To Reading %r"%(reading))
             return
         else:
             new_data = {key:"%s => %s"%(reading[key],data.get(key,None)) for key in reading if reading[key] != data.get(key,None)}
