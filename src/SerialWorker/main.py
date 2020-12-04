@@ -292,7 +292,7 @@ class GPSWorker:
             mainlog.debug("No Update To Reading %r"%(reading))
             return
         else:
-            new_data = {reading[key]:data.get(key,None) for key in reading if reading[key] != data.get(key,None)}
+            new_data = {key:"%s => %s"%(reading[key],data.get(key,None)) for key in reading if reading[key] != data.get(key,None)}
             data.update(reading)
             mainlog.info("REDIS READING UPD: %r"%new_data)
             SerialWorker.r.set("reading_data",json.dumps(data))
