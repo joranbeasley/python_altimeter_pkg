@@ -19,6 +19,7 @@ from utils import initHandlers
 p = argparse.ArgumentParser()
 mainlog = None
 
+
 def signal_handler(sig, frame):
     SerialWorker.r.publish("kill_t1","1")
     SerialWorker.r.publish("kill_t2","1")
@@ -26,7 +27,35 @@ def signal_handler(sig, frame):
     mainlog.debug("NOTIFIED THREADS TO TERMINATE!!! EXITING NOW!")
     sys.exit(0)
 
+
+def signal_handler2(sig, frame):
+    # signal.signal(signal.SIGINT, signal_handler)
+    mainlog.info("GOT SIG2")
+    try:
+       mainlog.setLevel(logging.DEBUG)
+    except:
+       print("Could not set log level...")
+
+def signal_handler3(sig, frame):
+    # signal.signal(signal.SIGINT, signal_handler)
+    mainlog.info("GOT SIG3")
+    try:
+       mainlog.setLevel(logging.INFO)
+    except:
+       print("Could not set log level...")
+def signal_handler4(sig, frame):
+    # signal.signal(signal.SIGINT, signal_handler)
+    mainlog.info("GOT SIG4")
+    try:
+       mainlog.setLevel(logging.WARNING)
+    except:
+       print("Could not set log level...")
+
+
 signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGIO, signal_handler2)
+signal.signal(signal.SIGUSR1, signal_handler3)
+signal.signal(signal.SIGUSR2, signal_handler4)
 # print('Press Ctrl+C')
 # signal.pause()
 class SerialAltimeterWorker:

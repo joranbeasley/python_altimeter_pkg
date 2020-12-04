@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+import signal
 import sys
 import threading
 import csv
@@ -34,7 +35,33 @@ def timeTicks(x, pos):
     d = datetime.timedelta(seconds=x%86400)
     return str(d)
 # figure =  Figure(figsize=(4,1), dpi=75)
+def signal_handler2(sig, frame):
+    # signal.signal(signal.SIGINT, signal_handler)
+    try:
+        logger.setLevel(logging.DEBUG)
+    except:
+        print("Could not set log level...")
+    logger.debug("GOT SIG2")
 
+def signal_handler3(sig, frame):
+    # signal.signal(signal.SIGINT, signal_handler)
+    try:
+        logger.setLevel(logging.INFO)
+    except:
+        print("Could not set log level...")
+    logger.info("GOT SIG3")
+def signal_handler4(sig, frame):
+    # signal.signal(signal.SIGINT, signal_handler)
+    try:
+        logger.setLevel(logging.WARNING)
+    except:
+        print("Could not set log level...")
+    logger.warn("GOT SIG4")
+
+
+signal.signal(signal.SIGIO, signal_handler2)
+signal.signal(signal.SIGUSR1, signal_handler3)
+signal.signal(signal.SIGUSR2, signal_handler4)
 class Header:
     def __init__(self,master,label="initializing",bg="white",fg="black",gps="no",alt="no"):
         self.root = master
