@@ -17,6 +17,7 @@ log = FakeLog()
 class AltimeterUradSer:
     log_setup = {'filename':"/logfiles/urad.log",'maxBytes':50000,'backupCount':1}
     def setupLogging(self):
+        global log
         log = logging.getLogger("urad_logger")
         log.setLevel(logging.DEBUG)
         handleF = RotatingFileHandler(**self.log_setup)
