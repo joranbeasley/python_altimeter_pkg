@@ -29,7 +29,7 @@ class AltimeterUradSer:
     def __init__(self,port="/dev/urad",cfg=None):
         global log
         cfg = cfg or {}
-
+        self.setupLogging()
         try:
             self.ser = serial.Serial(port,1e6)
         except:
