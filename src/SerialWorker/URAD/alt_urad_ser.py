@@ -45,7 +45,7 @@ class AltimeterUradSer:
 
     def get_reading(self):
         ret_code,results,raw_results,raw_bytes = URAD.detection(self.ser)
-        log.debug("URAD RESULT: %r"%(raw_bytes,))
+        log.debug("URAD RESULT?: %r"%(raw_bytes,))
         # log.info("RESULTS2: %r"%(results))
         return {"altitude_ground":results[1][0],"speed_ground":results[2][0],"snr_ground":results[3][0]}
     def read_forever(self,callback, delay=0.25):
