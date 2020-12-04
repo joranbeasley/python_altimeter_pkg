@@ -35,33 +35,35 @@ def timeTicks(x, pos):
     d = datetime.timedelta(seconds=x%86400)
     return str(d)
 # figure =  Figure(figsize=(4,1), dpi=75)
-def signal_handler2(sig, frame):
-    # signal.signal(signal.SIGINT, signal_handler)
+def signal_SIGIO(sig, frame):
+    # SIGIO=12
     try:
         logger.setLevel(logging.DEBUG)
     except:
         print("Could not set log level...")
     logger.debug("GOT SIG2")
 
-def signal_handler3(sig, frame):
-    # signal.signal(signal.SIGINT, signal_handler)
+def signal_SIGUSR1(sig, frame):
+    # SIGUSR1=10
     try:
         logger.setLevel(logging.INFO)
     except:
         print("Could not set log level...")
     logger.info("GOT SIG3")
-def signal_handler4(sig, frame):
-    # signal.signal(signal.SIGINT, signal_handler)
+def signal_SIGUSR2(sig, frame):
+    # SIGUSR2=12
     try:
         logger.setLevel(logging.WARNING)
     except:
         print("Could not set log level...")
     logger.warn("GOT SIG4")
 
-
-signal.signal(signal.SIGIO, signal_handler2)
-signal.signal(signal.SIGUSR1, signal_handler3)
-signal.signal(signal.SIGUSR2, signal_handler4)
+# SIGIO = 29
+signal.signal(signal.SIGIO, signal_SIGIO)
+# SIGUSR1 = 10
+signal.signal(signal.SIGUSR1, signal_SIGUSR1)
+# SIGUSR2 = 12
+signal.signal(signal.SIGUSR2, signal_SIGUSR2)
 class Header:
     def __init__(self,master,label="initializing",bg="white",fg="black",gps="no",alt="no"):
         self.root = master

@@ -28,34 +28,37 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 
-def signal_handler2(sig, frame):
-    # signal.signal(signal.SIGINT, signal_handler)
-    mainlog.info("GOT SIG2")
+def signal_SIGIO(sig, frame):
+    # SIGIO=29
     try:
-       mainlog.setLevel(logging.DEBUG)
+        mainlog.setLevel(logging.DEBUG)
     except:
-       print("Could not set log level...")
+        print("Could not set log level...")
+    mainlog.debug("GOT SIG2")
 
-def signal_handler3(sig, frame):
-    # signal.signal(signal.SIGINT, signal_handler)
+def signal_SIGUSR1(sig, frame):
+    # SIGUSR1 = 10
+    try:
+        mainlog.setLevel(logging.INFO)
+    except:
+        print("Could not set log level...")
     mainlog.info("GOT SIG3")
+def signal_SIGUSR2(sig, frame):
+    # SIGUSR2 = 12
     try:
-       mainlog.setLevel(logging.INFO)
+        mainlog.setLevel(logging.WARNING)
     except:
-       print("Could not set log level...")
-def signal_handler4(sig, frame):
-    # signal.signal(signal.SIGINT, signal_handler)
-    mainlog.info("GOT SIG4")
-    try:
-       mainlog.setLevel(logging.WARNING)
-    except:
-       print("Could not set log level...")
+        print("Could not set log level...")
+    mainlog.warn("GOT SIG4")
 
 
 signal.signal(signal.SIGINT, signal_handler)
-signal.signal(signal.SIGIO, signal_handler2)
-signal.signal(signal.SIGUSR1, signal_handler3)
-signal.signal(signal.SIGUSR2, signal_handler4)
+# SIGIO = 29
+signal.signal(signal.SIGIO, signal_SIGIO)
+# SIGUSR1 = 10
+signal.signal(signal.SIGUSR1, signal_SIGUSR1)
+# SIGUSR2 = 12
+signal.signal(signal.SIGUSR2, signal_SIGUSR2)
 # print('Press Ctrl+C')
 # signal.pause()
 class SerialAltimeterWorker:
