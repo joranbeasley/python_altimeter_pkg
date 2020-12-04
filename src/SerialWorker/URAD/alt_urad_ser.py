@@ -22,9 +22,9 @@ class AltimeterUradSer:
         handleF = RotatingFileHandler(**self.log_setup)
         handleF.setFormatter(logging.Formatter("%(asctime)s:: %(msg)s"))
         log.addHandler(handleF)
-        handleS = logging.StreamHandler()
-        handleS.setFormatter(logging.Formatter("%(name)s:: %(msg)s"))
-        log.addHandler(handleF)
+        # handleS = logging.StreamHandler()
+        # handleS.setFormatter(logging.Formatter("%(name)s:: %(msg)s"))
+        # log.addHandler(handleF)
     def __init__(self,port="/dev/urad",cfg=None):
         global log
         cfg = cfg or {}
