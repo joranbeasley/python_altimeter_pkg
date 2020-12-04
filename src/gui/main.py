@@ -40,7 +40,7 @@ def signal_SIGIO(sig, frame):
     try:
         logger.setLevel(logging.DEBUG)
     except:
-        print("Could not set log level...")
+        logger.exception("Could not set log level...")
     logger.debug("GOT SIG2")
 
 def signal_SIGUSR1(sig, frame):
@@ -48,14 +48,14 @@ def signal_SIGUSR1(sig, frame):
     try:
         logger.setLevel(logging.INFO)
     except:
-        print("Could not set log level...")
+        logger.exception("Could not set log level...")
     logger.info("GOT SIG3")
 def signal_SIGUSR2(sig, frame):
     # SIGUSR2=12
     try:
         logger.setLevel(logging.WARNING)
     except:
-        print("Could not set log level...")
+        logger.exception("Could not set log level...")
     logger.warn("GOT SIG4")
 
 # SIGIO = 29
@@ -267,8 +267,10 @@ class Layout:
         log_ct = len(glob.glob('/logfiles/*.csv'))
         if header_text == "NOT RECORDING":
             if data['devices']['usb'] != 'connected' and self.buttons[1]['state'] != tk.DISABLED:
+                logger.info("DISABLE DOWNLOAD BUTTON(no usb)")
                 self.buttons[1]['state'] = tk.DISABLED
             elif data['devices']['usb'] == 'connected' and self.buttons[1]['state'] == tk.DISABLED:
+                logger.info("ENABLE DOWNLOAD BUTTON(usb)")
                 self.buttons[1]['state'] = tk.NORMAL
 
             self.buttons[1].configure(text="Download\n(%s)"%(log_ct,),
@@ -283,6 +285,7 @@ class Layout:
         value1 = float('nan')
         value2 = float('nan')
         if 'altitude_ground' in data['data']:
+            logger.info("UPDATE altimeter data:",data['data'])
             try:
                 value1 = float(data['data']['altitude_ground'])
             except ValueError:
@@ -290,6 +293,7 @@ class Layout:
             if str(value1) == "nan" and data['devices']['altimeter'] == "connected":
                 self.header.alt_indicator_light.configure(bg="DarkGoldenrod2")
         if 'altitude_sealevel' in data['data']:
+            logger.info("ALSO UPDATE GPS DATA(same)")
             try:
                 if str(value2) == "nan":
                     value2 = float(data['data']['altitude_sealevel'])
@@ -307,7 +311,7 @@ class Layout:
         t2 = time.time()
         self.addValue(value1,value2)
         # logger.info("Took %0.2fs to Add the Value"%(time.time()-t1,))
-        logger.info("Took %0.2fs to complete Tick(Query Redis=%0.2fs,UI=%s,AddValue=%0.2fs)"%(time.time()-t0,t1-t0,t2-t2,time.time()-t2))
+        logger.debug("Took %0.2fs to complete Tick(Query Redis=%0.2fs,UI=%s,AddValue=%0.2fs)"%(time.time()-t0,t1-t0,t2-t2,time.time()-t2))
 
     def updateHeader(self,bg,fg,text):
         self.header.update(bg,fg,text)

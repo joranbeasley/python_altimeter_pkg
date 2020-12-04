@@ -33,7 +33,7 @@ def signal_SIGIO(sig, frame):
     try:
         mainlog.setLevel(logging.DEBUG)
     except:
-        print("Could not set log level...")
+        mainlog.exception("Could not set log level...")
     mainlog.debug("GOT SIG2")
 
 def signal_SIGUSR1(sig, frame):
@@ -41,14 +41,14 @@ def signal_SIGUSR1(sig, frame):
     try:
         mainlog.setLevel(logging.INFO)
     except:
-        print("Could not set log level...")
+        mainlog.exception("Could not set log level...")
     mainlog.info("GOT SIG3")
 def signal_SIGUSR2(sig, frame):
     # SIGUSR2 = 12
     try:
         mainlog.setLevel(logging.WARNING)
     except:
-        print("Could not set log level...")
+        mainlog.exception("Could not set log level...")
     mainlog.warn("GOT SIG4")
 
 
@@ -106,7 +106,7 @@ class SerialAltimeterWorker:
             except:
                 log.exception("ERROR GETTING READING!")
                 reading = None
-            # log.debug("GOT ALTIMETER READING: %r"%(reading,))
+            mainlog.debug("GOT ALTIMETER READING: %r"%(reading,))
             if not reading:
                 log.warn("Closing Altimeter Port (no reading...)")
                 conn.close()
