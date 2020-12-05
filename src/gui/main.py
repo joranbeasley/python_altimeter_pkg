@@ -128,7 +128,7 @@ class Layout:
                 self.chart.showTrace(1)
                 self.chart.update()
             else:
-                self.sealevel.config(bg=tk.NONE,state=tk.NORMAL)
+                self.sealevel.config(bg="light grey",state=tk.NORMAL)
                 logger.warn("TOGGLE OFF TRACE2")
                 self.chart.hideTrace(1)
                 self.chart.update()
@@ -247,7 +247,7 @@ class Layout:
         r.publish("download","/mnt/USB")
         self.root.focus_set()
     def update_chart_tick(self,i):
-        print("Update The Chart?")
+        # logger.info("Update The Chart? %r"%self.chart.tr)
         self.update_chart_easy()
 
     def update_tick(self):
