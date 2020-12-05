@@ -123,9 +123,13 @@ class Layout:
         def toggleTrace2():
             self._trace2 = not self._trace2
             if self._trace2:
+                logger.warn("TOGGLE ON TRACE2")
+                self.sealevel.config(bg="yellow")
                 self.chart.showTrace(1)
                 self.chart.update()
             else:
+                self.sealevel.config(bg=tk.NONE)
+                logger.warn("TOGGLE OFF TRACE2")
                 self.chart.hideTrace(1)
                 self.chart.update()
         self.sealevel = tk.Button(self.root, text="---.-\nmeters sealevel",
