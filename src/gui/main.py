@@ -124,11 +124,11 @@ class Layout:
             self._trace2 = not self._trace2
             if self._trace2:
                 logger.warn("TOGGLE ON TRACE2")
-                self.sealevel.config(bg="yellow")
+                self.sealevel.config(bg="yellow",state=tk.NORMAL)
                 self.chart.showTrace(1)
                 self.chart.update()
             else:
-                self.sealevel.config(bg=tk.NONE)
+                self.sealevel.config(bg=tk.NONE,state=tk.NORMAL)
                 logger.warn("TOGGLE OFF TRACE2")
                 self.chart.hideTrace(1)
                 self.chart.update()
