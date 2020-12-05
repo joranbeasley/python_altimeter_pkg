@@ -389,7 +389,7 @@ class SerialWorker:
         print("Exiting Serial Worker ... should automatically restart if configured")
 
     def usb_check(self):
-        pass
+        return len(glob.glob("/dev/sd[abcdef]1")) > 0
     @staticmethod
     def _check_port_win(port):
         ser = serial.Serial()
