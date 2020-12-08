@@ -1,6 +1,6 @@
 [Unit]
 Description=SerialAltimeterMonitor
-
+After=redis.service
 [Service]
 ExecStart=/home/pi/start-serial-monitor
 Restart=always
