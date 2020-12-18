@@ -52,6 +52,7 @@ class AltimeterSer:
         return getNBITS(22, altitude_section) * 0.01
 
     def get_reading(self):
+        self.conn.flush()
         try:
             raw = self._getRawPayload()
         except AssertionError:
