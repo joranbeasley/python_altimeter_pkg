@@ -58,12 +58,13 @@ def signal_SIGUSR2(sig, frame):
         logger.exception("Could not set log level...")
     logger.warn("GOT SIG4")
 
-# SIGIO = 29
-signal.signal(signal.SIGIO, signal_SIGIO)
-# SIGUSR1 = 10
-signal.signal(signal.SIGUSR1, signal_SIGUSR1)
-# SIGUSR2 = 12
-signal.signal(signal.SIGUSR2, signal_SIGUSR2)
+if os.name != "nt":
+    # SIGIO = 29
+    signal.signal(signal.SIGIO, signal_SIGIO)
+    # SIGUSR1 = 10
+    signal.signal(signal.SIGUSR1, signal_SIGUSR1)
+    # SIGUSR2 = 12
+    signal.signal(signal.SIGUSR2, signal_SIGUSR2)
 class Header:
     def __init__(self,master,label="initializing",bg="white",fg="black",gps="no",alt="no"):
         self.root = master
@@ -118,7 +119,7 @@ class Layout:
         self._logging = None
         self.state = {'usb':'no','gps': 'no', 'altimeter': 'no', "display_value": "No Reading","recording":"NOT RECORDING"}
         self.header= Header(self.root,"initializing...","goldenrod1")
-        self.main_label = tk.Label(self.root, text="----.-",font=("Helvetica", 46),bg="white",bd=0)
+        self.main_label = tk.Label(self.root, text="----.-",font=("Helvetica", 76),bg="white",bd=0)
         self.main_label.place(x=20,y=35)
         def toggleTrace2():
             self._trace2 = not self._trace2
@@ -132,13 +133,13 @@ class Layout:
                 logger.warn("TOGGLE OFF TRACE2")
                 self.chart.hideTrace(1)
                 self.chart.update()
-        self.sealevel = tk.Button(self.root, text="---.-\nmeters sealevel",
-                                    command=toggleTrace2,
-                                    anchor="w",
-                                    relief="raised")
-        self.sealevel.place(x=200,y=35)
+        # self.sealevel = tk.Button(self.root, text="---.-\nmeters sealevel",
+        #                             command=toggleTrace2,
+        #                             anchor="w",
+        #                             relief="raised")
+        # self.sealevel.place(x=200,y=35)
         self.unit_label = tk.Label(self.root,anchor="w",text="meters ground",font=("helvetica",11),bg="white")
-        self.unit_label.place(x=188,y=88)
+        self.unit_label.place(x=188,y=132)
 
         self._createFigure()
         # self.ico = SateliteIcon(self.root,"12\n(-1%)")
@@ -217,16 +218,17 @@ class Layout:
         value_b = value2 if value2 == "---.-" else "%0.1f"%vGPS
 
         self.main_label.configure(text="%0.1f"%value)
-        self.chart.add_point(0,[time.time(),value])
-        self.chart.add_point(1,[time.time(),value2],update=True)
-        self.sealevel.config(text="%0.1f \nmeters sealevel"%(value2))
+        # self.chart.add_point(0,[time.time(),value])
+        # self.chart.add_point(1,[time.time(),value2],update=True)
+        # self.sealevel.config(text="%0.1f \nmeters sealevel"%(value2))
 
 
     def _createFigure(self):
-        self.chart = ChartPanel(self.root,320,80)
-        self.chart.hideTrace(1)
-        self.chart.place(y=99)
-        return self.chart
+        # self.chart = ChartPanel(self.root,320,80)
+        # self.chart.hideTrace(1)
+        # self.chart.place(y=99)
+        # return self.chart
+        pass
 
     def _fixAxes(self):
         traceback.print_stack()
@@ -248,7 +250,8 @@ class Layout:
         self.root.focus_set()
     def update_chart_tick(self,i):
         # logger.info("Update The Chart? %r"%self.chart.tr)
-        self.update_chart_easy()
+        # self.update_chart_easy()
+        pass
 
     def update_tick(self):
         t0 = time.time()
