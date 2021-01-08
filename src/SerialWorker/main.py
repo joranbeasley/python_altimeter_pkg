@@ -51,14 +51,14 @@ def signal_SIGUSR2(sig, frame):
         mainlog.exception("Could not set log level...")
     mainlog.warn("GOT SIG4")
 
-
-signal.signal(signal.SIGINT, signal_handler)
-# SIGIO = 29
-signal.signal(signal.SIGIO, signal_SIGIO)
-# SIGUSR1 = 10
-signal.signal(signal.SIGUSR1, signal_SIGUSR1)
-# SIGUSR2 = 12
-signal.signal(signal.SIGUSR2, signal_SIGUSR2)
+if os.name != "nt":
+    signal.signal(signal.SIGINT, signal_handler)
+    # SIGIO = 29
+    signal.signal(signal.SIGIO, signal_SIGIO)
+    # SIGUSR1 = 10
+    signal.signal(signal.SIGUSR1, signal_SIGUSR1)
+    # SIGUSR2 = 12
+    signal.signal(signal.SIGUSR2, signal_SIGUSR2)
 # print('Press Ctrl+C')
 # signal.pause()
 class SerialAltimeterWorker:
@@ -276,7 +276,10 @@ class GPSWorker:
                     #     # print("SET DEVICES:", devices)
                     #     SerialWorker.r.set('devices', json.dumps(devices))
                     try:
-                        self.read_forever(conn,pub,log)
+                        def on_reading_received(ob,raw):
+                            self.update_redis_reading(ob)
+                        conn.read_forever(on_reading_received,)
+                        # self.read_forever(conn,pub,log)
                     except StopIteration:
                         log.warn("RETURN FROM LOOP")
                         return
@@ -417,6 +420,8 @@ class SerialWorker:
         portName = self.ports[interface.lower()]
         if portName.startswith("COM"): # == "nt":
             return self._check_port_win(portName)
+        if os.name == "nt":
+            return False
         return self._check_port_unix(portName)
 
 
@@ -467,7 +472,7 @@ class SerialWorker:
         if gps is not None:
             new_data.update({'gps':gps})
         if usb is not None:
-            new_data.update({'usb':gps})
+            new_data.update({'usb':usb})
         data.update(new_data)
         SerialWorker.r.set('devices',json.dumps(data))
     def set_current_reading(self,data):

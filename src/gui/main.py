@@ -13,6 +13,8 @@ import time
 import traceback
 import redis
 
+from uiconfig import load_config_dict, load_ui_config
+
 try:
     import tkinter as tk
 except:
@@ -65,6 +67,8 @@ if os.name != "nt":
     signal.signal(signal.SIGUSR1, signal_SIGUSR1)
     # SIGUSR2 = 12
     signal.signal(signal.SIGUSR2, signal_SIGUSR2)
+CONFIG = load_ui_config()
+
 class Header:
     def __init__(self,master,label="initializing",bg="white",fg="black",gps="no",alt="no"):
         self.root = master
@@ -267,16 +271,16 @@ class Layout:
         self.header.update(
             text=header_text,
             bg=header_color,
-            gps=["yes","no"][data['devices']['gps']!="connected"],
-            alt=["yes","no"][data['devices']['altimeter']!="connected"],
+            gps=["yes","no"][data['devices'].get('gps',False) != "connected"],
+            alt=["yes","no"][data['devices'].get('altimeter',False) !="connected"],
             gps_status="%d\n%d%%"%(int(data['data'].get('num_satellites','-1')), float(data['data'].get('satellites_signal','-1')))
         )
         log_ct = len(glob.glob('/logfiles/*.csv'))
         if header_text == "NOT RECORDING":
-            if data['devices']['usb'] != 'connected' and self.buttons[1]['state'] != tk.DISABLED:
+            if data['devices'].get('usb',False) != 'connected' and self.buttons[1]['state'] != tk.DISABLED:
                 logger.info("DISABLE DOWNLOAD BUTTON(no usb)")
                 self.buttons[1]['state'] = tk.DISABLED
-            elif data['devices']['usb'] == 'connected' and self.buttons[1]['state'] == tk.DISABLED:
+            elif data['devices'].get('usb',False) == 'connected' and self.buttons[1]['state'] == tk.DISABLED:
                 logger.info("ENABLE DOWNLOAD BUTTON(usb)")
                 self.buttons[1]['state'] = tk.NORMAL
 
@@ -297,7 +301,7 @@ class Layout:
                 value1 = float(data['data']['altitude_ground'])
             except ValueError:
                 value1 = float("nan")
-            if str(value1) == "nan" and data['devices']['altimeter'] == "connected":
+            if str(value1) == "nan" and data['devices'].get('altimeter',False) == "connected":
                 self.header.alt_indicator_light.configure(bg="DarkGoldenrod2")
         if 'altitude_sealevel' in data['data']:
             logger.info("ALSO UPDATE GPS DATA(same)")
