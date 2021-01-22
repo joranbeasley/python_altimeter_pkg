@@ -304,7 +304,7 @@ class Layout:
             if str(value1) == "nan" and data['devices'].get('altimeter',False) == "connected":
                 self.header.alt_indicator_light.configure(bg="DarkGoldenrod2")
         if 'altitude_sealevel' in data['data']:
-            logger.info("ALSO UPDATE GPS DATA(same)")
+            logger.info("ALSO UPDATE GPS DATA(same) %r"%data['data'])
             try:
                 if str(value2) == "nan":
                     value2 = float(data['data']['altitude_sealevel'])

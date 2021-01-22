@@ -265,9 +265,11 @@ class GPSWorker:
                 except:
                     # logging.getLogger("gps_raw").exception("CONNECTION ERROR!")
                     time.sleep(0.2)
-                    # log.exception("Could not open PORT")
-                    # if os.name == "nt":
-                    log.warn("Unable to connect to GPS: %r"%self.port)
+                    #
+                    if os.name == "nt":
+                        log.warn("Unable to connect to GPS: %r"%self.port)
+                    else:
+                        log.exception("Could not open GPS PORT: %r"%self.port)
                     devices.update({'gps':'disconnected'})
                     SerialWorker.r.set('devices',json.dumps(devices))
                 else:
@@ -277,6 +279,9 @@ class GPSWorker:
                     #     SerialWorker.r.set('devices', json.dumps(devices))
                     try:
                         def on_reading_received(ob,raw):
+                            if not ob or not isinstance(ob,dict):
+                                log.warn("Unable to parse %r => %r"%(raw,ob))
+                                return
                             self.update_redis_reading(ob)
                         conn.read_forever(on_reading_received,)
                         # self.read_forever(conn,pub,log)
@@ -298,7 +303,11 @@ class GPSWorker:
             new_data = {key:"%s => %s"%(reading[key],data.get(key,None)) for key in reading if reading[key] != data.get(key,None)}
             data.update(reading)
             mainlog.info("REDIS READING UPD: %r"%new_data)
-            SerialWorker.r.set("reading_data",json.dumps(data))
+            try:
+                SerialWorker.r.set("reading_data",json.dumps(data))
+            except:
+                mainlog.exception("Error Setting reading_data key in redis, skip update");
+
 def start_gps(cfg):
     GPSWorker.start(cfg['gps'])
 def start_altimeter(cfg):

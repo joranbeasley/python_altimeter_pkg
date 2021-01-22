@@ -126,14 +126,14 @@ def ConnectToPortAndSpeedItUp(port,baudRates=[4800,9600,19200,38400],targetRate=
         c.open()
         msg = c.read(100)
         if "$G" in msg and "\r\n" in msg:
-            print("Found Baud:",baud)
+            log.warn("Found Baud Existing: %r"%baud)
             if baud != targetRate:
                 set_baudrate(c,targetRate)
             break
     else:
         return None
     #send Configure
-    print("Configure GPS @ %sbps"%targetRate)
+    log.warn("Configure GPS @ %sbps"%targetRate)
     set_msg_mode(c,"RMC",1) # update lat/lon/time every 1 seconds
     set_msg_mode(c,"GGA",1) # update sealevel height every 1 seconds
     set_msg_mode(c,"GSV",10) # update satelites every 10 seconds
@@ -148,7 +148,7 @@ def set_baudrate(ser,baudrate):
     msg = "$PSRF100,1,%s,8,1,0" % baudrate
     cs = reduce(lambda a, b: a ^ b, bytearray(msg[1:]))
     msg = "%s*%02X\r\n" % (msg, cs)
-    print("SET BAUD: %s" % baudrate, msg)
+    log.warn("SET BAUD: %s" % baudrate, msg)
     ser.write(msg)
     ser.flush()
     ser.close()
@@ -160,7 +160,7 @@ def set_msg_mode(ser,msgType="RMC",queryRate=1):
     msg="$PSRF103,%s,00,%02d,01"%(msgTypeCode,queryRate)
     cs = reduce(lambda a,b:a^b,bytearray(msg[1:]))
     msg = "%s*%02X\r\n" % (msg, cs)
-    print("SET MODE: %s to sample every %d seconds : %r"%(msgType,queryRate,msg))
+    log.warn("SET MODE: %s to sample every %d seconds : %r"%(msgType,queryRate,msg))
     ser.write(msg)
     time.sleep(0.1)
     # c.write("")
@@ -169,10 +169,14 @@ class GPSSerial:
     alive = 0;
     def __init__(self,port="/dev/gps"):
         log.warn("INIT %s"%port)
-        self.conn = ConnectToPortAndSpeedItUp(port)#serial.Serial(port,baudrate=4800,timeout=1.0)
+        try:
+            self.conn = ConnectToPortAndSpeedItUp(port)#serial.Serial(port,baudrate=4800,timeout=1.0)
+        except:
+            log.exception("Unable to connect to GPS PORT: %r"%port)
+            raise
 
         time.sleep(1.1)
-        log.warn("opened connection %r"%(self.conn,))
+        log.warn("SUCCESS opened connection %r and configured"%(self.conn,))
     def close(self):
         self.conn.close()
     def read_line(self,onChecksumError="warn"):
