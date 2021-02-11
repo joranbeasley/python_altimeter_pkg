@@ -48,6 +48,8 @@ class AltimeterUradSer:
         log.debug("URAD RESULT?: %r"%(raw_bytes,))
         # log.info("RESULTS2: %r"%(results))
         dist = max([float(v) for v in results[1]])
+        with open("/logfiles/urad.altitude.log","wb") as f:
+             f.write("ALL DISTANCE %r  :  MAX DIST %r\n"%(results[1],dist))
         return {"altitude_ground":dist,"speed_ground":results[2][0],"snr_ground":results[3][0]}
                    
     def read_forever(self,callback, delay=0.25):
